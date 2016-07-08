@@ -304,5 +304,4 @@ public class AutoResizeTextView extends TextView {
         StaticLayout layout = new StaticLayout(source, paintCopy, width, Alignment.ALIGN_NORMAL, mSpacingMult, mSpacingAdd, true);
         return layout.getHeight();
     }
-
 }
