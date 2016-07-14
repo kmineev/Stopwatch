@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
-        android:id="@+id/reset"
+        android:id="@+id/resetButton"
         android:onClick="onClickReset"
         android:orderInCategory="25"
         android:title="@string/action_settings"
