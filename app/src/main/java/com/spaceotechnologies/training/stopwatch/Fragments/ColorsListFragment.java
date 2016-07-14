@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch;
+package com.spaceotechnologies.training.stopwatch.Fragments;
 
 import android.app.Activity;
 import android.app.ListFragment;
@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import com.spaceotechnologies.training.stopwatch.R;
 
 /**
  * Created by Kostez on 13.07.2016.

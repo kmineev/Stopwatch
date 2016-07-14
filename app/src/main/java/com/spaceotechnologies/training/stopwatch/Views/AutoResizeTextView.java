@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch;
+package com.spaceotechnologies.training.stopwatch.Views;
 
 /**
  * Created by Kostez on 01.07.2016.
