@@ -4,16 +4,16 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <TextView
+    <com.spaceotechnologies.training.stopwatch.Views.AutoResizeTextView
         android:id="@+id/counter_fr_counter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="0"
         android:gravity="center"
         android:maxLines="1"
-        android:textSize="150dp"
         android:enabled="true"
         android:foregroundGravity="center"
-        android:textColor="#48484c" />
+        android:textColor="#48484c"
+        android:textSize="1000dp" />
 
 </LinearLayout>
