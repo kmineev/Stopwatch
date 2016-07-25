@@ -2,157 +2,180 @@ package com.spaceotechnologies.training.stopwatch.Activitys;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
-import android.app.Fragment;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import com.spaceotechnologies.training.stopwatch.Adapters.TextPagerAdapter;
+import com.spaceotechnologies.training.stopwatch.Fragments.CounterFragment;
+import com.spaceotechnologies.training.stopwatch.Fragments.TimerFragment;
 import com.spaceotechnologies.training.stopwatch.R;
-import com.spaceotechnologies.training.stopwatch.Views.AutoResizeTextView;
+import com.spaceotechnologies.training.stopwatch.Services.StopwatchService;
+import com.spaceotechnologies.training.stopwatch.Services.TimerService;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String color = "";
-    private int oldBackgroundColorARGB = -1;
-    private int newBackgroundColor = -1;
-    private int seconds = 0;
-    private boolean isStoped = false;
-    private static final int NOTIFY_ID = 101;
+    private Toolbar toolbar;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private CounterFragment counterFragment;
 
-    private String tag = "LifeCycleEvents";
+    private String color = "";
+    private int newBackgroundColor = -1;
+    private int oldBackgroundColorARGB = -1;
+
+    private TextPagerAdapter adapter;
+    private final long mFrequency = 100;
+    private final int TICK_WHAT = 2;
+    private final int TICK_TIMER = 5;
+    private TimerService m_timerService;
+    private TimerFragment timerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (-1 == oldBackgroundColorARGB)
-            oldBackgroundColorARGB = getResources().getColor(R.color.White);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
 
-        Log.d(tag, "In the onCreate() event");
-        runStopwatch();
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
+        startService(new Intent(this, StopwatchService.class));
+        bindStopwatchService();
+
+        startService(new Intent(this, TimerService.class));
+        bindTimerService();
+
+        mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), mFrequency);
+
+        timerHandler.sendMessageDelayed(Message.obtain(timerHandler, TICK_TIMER), mFrequency);
     }
 
-    private void runStopwatch(){
+    private void setupViewPager(ViewPager viewPager) {
+        adapter = new TextPagerAdapter(getSupportFragmentManager(), MainActivity.this);
+        viewPager.setAdapter(adapter);
+    }
 
-        Fragment frag1 = getFragmentManager().findFragmentById(R.id.counter_fragment);
-        final AutoResizeTextView counter = ((AutoResizeTextView) frag1.getView().findViewById(R.id.counter_fr_counter));
-        final Handler handler = new Handler();
+    // Connection to the backgorund StopwatchService
+    private StopwatchService m_stopwatchService;
 
-        Context context = getApplicationContext();
-        Intent notificationIntent = new Intent(context, MainActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(context,
-                0, notificationIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        final Resources res = context.getResources();
-        final Notification.Builder builder = new Notification.Builder(context);
-        builder
-                .setContentIntent(contentIntent)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(res, R.mipmap.ic_launcher))
+    private ServiceConnection m_stopwatchServiceConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            m_stopwatchService = ((StopwatchService.LocalBinder)service).getService();
+        }
 
-                .setAutoCancel(false)
-                .setContentTitle(res.getString(R.string.notifytitle));
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            m_stopwatchService = null;
+        }
+    };
 
-        final NotificationManager notificationManager = (NotificationManager) context
-                .getSystemService(Context.NOTIFICATION_SERVICE);
+    private void bindStopwatchService() {
+        bindService(new Intent(this, StopwatchService.class),
+                m_stopwatchServiceConn, Context.BIND_AUTO_CREATE);
+    }
 
-        handler.post(new Runnable() {
+    private Handler mHandler = new Handler() {
+        public void handleMessage(Message m) {
+            updateElapsedTime();
+            sendMessageDelayed(Message.obtain(this, TICK_WHAT), mFrequency);
+        }
+    };
 
-            @Override
-            public void run() {
+    public void updateElapsedTime() {
+        if ( m_stopwatchService != null && counterFragment != null) {
+            counterFragment.setText(m_stopwatchService.getFormattedElapsedTime());
+        }
+    }
 
-                String time = String.format("%d", seconds);
+    private Handler timerHandler = new Handler() {
+        public void handleMessage(Message m) {
+            updateLeftTime();
+            sendMessageDelayed(Message.obtain(this, TICK_TIMER), mFrequency);
+        }
+    };
 
-                if (!isStoped) {
-                    counter.setText(time);
-                    seconds++;
-                }
+    private void bindTimerService() {
+        bindService(new Intent(this, TimerService.class),
+                m_timerServiceConn, Context.BIND_AUTO_CREATE);
+    }
 
-                builder.setContentText(time);
-                Notification notification = builder.build();
-                notification.flags |= Notification.FLAG_NO_CLEAR | Notification.PRIORITY_MAX |Notification.FLAG_FOREGROUND_SERVICE;
-                notificationManager.notify(NOTIFY_ID, notification);
-                handler.postDelayed(this, 1000);
-            }
-        });
+    private ServiceConnection m_timerServiceConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            m_timerService = ((TimerService.LocalBinder)service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            m_timerService = null;
+        }
+    };
+
+    public void updateLeftTime() {
+        if ( m_timerService != null && timerFragment != null) {
+            timerFragment.setText(m_timerService.getFormattedLeftTime());
+        }
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
+    protected void onDestroy() {
+        mHandler.removeMessages(TICK_WHAT);
+        unbindStopwatchService();
+        super.onDestroy();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    private void unbindStopwatchService() {
+        if ( m_stopwatchService != null ) {
+            unbindService(m_stopwatchServiceConn);
+        }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.resetButton) {
-            return true;
+    public void onClickStartPause(MenuItem item) {
+        if  (m_stopwatchService.isStopwatchRunning()) {
+            m_stopwatchService.pause();
+        } else {
+            m_timerService.pause();
+            m_stopwatchService.start();
         }
+    }
 
-        if (id == R.id.stopButton) {
-            return true;
+    public void onClickReset(MenuItem item) {
+        m_stopwatchService.reset();
+    }
+
+    public void onClickStartStopTimer(MenuItem item) {
+        if (m_timerService.isTimerRunning()) {
+            m_timerService.pause();
+        } else {
+            m_stopwatchService.pause();
+            m_timerService.start();
         }
-
-        if (id == R.id.settingsButton) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     public void onClickSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivityForResult(intent, 1);
-    }
-
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(getResources().getString(R.string.seconds), seconds);
-        outState.putInt(getResources().getString(R.string.oldBackgroundColorARGB), oldBackgroundColorARGB);
-    }
-
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        seconds = savedInstanceState.getInt(getResources().getString(R.string.seconds));
-        oldBackgroundColorARGB = savedInstanceState.getInt(getResources().getString(R.string.oldBackgroundColorARGB));
-    }
-
-    public void onClickReset(MenuItem item) {
-        seconds = 0;
-    }
-
-    public void onClickPause(MenuItem item) {
-        isStoped = !isStoped;
     }
 
     @Override
@@ -168,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int getColor(String nameColor) {
-
         //здесь кейс не получается сделать, выводит constant expression required
 
         if (nameColor.equals(getResources().getString(R.string.White))) {
@@ -213,40 +235,27 @@ public class MainActivity extends AppCompatActivity {
         colorAnimation.start();
     }
 
-    public void onStart()
-    {
-        super.onStart();
-        Log.d(tag, "In the onStart() event");
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        counterFragment = (CounterFragment) adapter.fragments.get(0);
+        m_stopwatchService.start();
+
+        if  (adapter.fragments.get(1) != null) {
+            timerFragment = (TimerFragment) adapter.fragments.get(1);
+        }
+
+        return true;
     }
-    public void onRestart()
-    {
-        super.onRestart();
-        Log.d(tag, "In the onRestart() event");
-    }
-    public void onResume()
-    {
-        super.onResume();
-        Log.d(tag, "In the onResume() event");
-    }
-    public void onPause()
-    {
-        super.onPause();
-        Log.d(tag, "In the onPause() event");
-    }
-    public void onStop()
-    {
-        super.onStop();
-        Log.d(tag, "In the onStop() event");
-    }
-    public void onDestroy()
-    {
-        super.onDestroy();
-        Log.d(tag, "In the onDestroy() event");
+
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        return super.onCreateView(name, context, attrs);
     }
 
     @Override
     public void onBackPressed() {
-        Log.d("CDA", "onBackPressed Called");
         Intent setIntent = new Intent(Intent.ACTION_MAIN);
         setIntent.addCategory(Intent.CATEGORY_HOME);
         setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

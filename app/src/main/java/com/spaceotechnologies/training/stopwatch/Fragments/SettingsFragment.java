@@ -9,7 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.spaceotechnologies.training.stopwatch.Fragments.ColorsListFragment;
 import com.spaceotechnologies.training.stopwatch.R;
 
 /**
@@ -48,5 +47,4 @@ public class SettingsFragment extends ListFragment {
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-
 }

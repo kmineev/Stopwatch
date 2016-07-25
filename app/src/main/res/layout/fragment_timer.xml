@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <com.spaceotechnologies.training.stopwatch.Views.AutoResizeTextView
+        android:id="@+id/timer_fr_timer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:gravity="center"
+        android:maxLines="1"
+        android:enabled="true"
+        android:foregroundGravity="center"
+        android:textColor="#48484c"
+        android:textSize="1000dp" />
+
+</LinearLayout>
