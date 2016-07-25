@@ -1,26 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".Activitys.MainActivity">
+
+    <item
+        android:id="@+id/startPauseStopwatchButton"
+        android:onClick="onClickStartPause"
+        android:orderInCategory="15"
+        android:title="@string/action_start_pause"
+        app:showAsAction="always"
+        android:icon="@android:drawable/ic_media_pause" />
     <item
         android:id="@+id/resetButton"
         android:onClick="onClickReset"
         android:orderInCategory="25"
+        android:title="@string/action_reset"
+        app:showAsAction="always"
+        android:icon="@android:drawable/stat_notify_sync_noanim" />
+    <item
+        android:id="@+id/startStopTimerButton"
+        android:onClick="onClickStartStopTimer"
+        android:orderInCategory="50"
         android:title="@string/action_settings"
         app:showAsAction="always"
-        android:icon="@android:drawable/stat_notify_sync_noanim"/>
+        android:icon="@android:drawable/ic_media_pause" />
     <item
         android:id="@+id/settingsButton"
+        android:onClick="onClickSettings"
+        android:orderInCategory="75"
         android:title="@string/action_settings"
         app:showAsAction="always"
-        android:orderInCategory="50"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:onClick="onClickSettings"/>
-    <item
-        android:id="@+id/stopButton"
-        android:title="@string/action_stop"
-        app:showAsAction="always"
-        android:orderInCategory="15"
-        android:icon="@android:drawable/ic_media_pause"
-        android:onClick="onClickPause"/>
+        android:icon="@android:drawable/ic_menu_manage" />
 </menu>

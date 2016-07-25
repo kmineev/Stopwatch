@@ -1,6 +1,50 @@
 <resources>
-    <string name="app_name">Stopwatch</string>
-    <string name="action_reset">Reset</string>
+    <string name="app_name">Test Application</string>
+    <string name="one">One</string>
+    <string name="three">Three</string>
+    <string name="two">Two</string>
     <string name="action_settings">Settings</string>
+    <string name="action_reset">Reset</string>
     <string name="action_stop">Stop</string>
+
+    <string name="color">color</string>
+
+    <string name="White">White</string>
+    <string name="Red">Red</string>
+    <string name="Orange">Orange</string>
+    <string name="Yellow">Yellow</string>
+    <string name="Green">Green</string>
+    <string name="Blue">Blue</string>
+    <string name="DarkBlue">DarkBlue</string>
+    <string name="Violet">Violet</string>
+    <string name="Black">Black</string>
+
+    <string name="notifytitle">STOPWATCH COUNT:</string>
+    <string name="action_start_pause">Start/Pause</string>
+    <string name="timernotifytitle">TIMER COUNT:</string>
+    <string name="timeout">TIME OUT</string>
+
+    <string-array
+        name="string_array_settings">
+        <item>Background Color</item>
+        <item>Font Color</item>
+    </string-array>
+
+    <string-array
+        name="string_array_colors">
+        <item>White</item>
+        <item>Red</item>
+        <item>Orange</item>
+        <item>Yellow</item>
+        <item>Green</item>
+        <item>Blue</item>
+        <item>DarkBlue</item>
+        <item>Violet</item>
+        <item>Black</item>
+    </string-array>
+
+    <string-array name="titles_tabs">
+        <item>Stopwatch</item>
+        <item>Timer</item>
+    </string-array>
 </resources>

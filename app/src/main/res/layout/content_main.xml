@@ -16,12 +16,10 @@
     android:baselineAligned="false"
     tools:ignore="Orientation" >
 
-    <fragment
-        android:layout_width="0dp"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.spaceotechnologies.training.stopwatch.Fragments.CounterFragment"
-        android:id="@+id/counter_fragment"
-        android:layout_weight="50" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </LinearLayout>
-
