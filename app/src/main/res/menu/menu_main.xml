@@ -8,9 +8,9 @@
         android:id="@+id/startPauseStopwatchButton"
         android:onClick="onClickStartPause"
         android:orderInCategory="15"
-        android:title="@string/action_start_pause"
+        android:title="@string/action_pause"
         app:showAsAction="always"
-        android:icon="@android:drawable/ic_media_pause" />
+        android:icon="@drawable/ic_pause_24dp" />
     <item
         android:id="@+id/resetButton"
         android:onClick="onClickReset"
@@ -19,17 +19,10 @@
         app:showAsAction="always"
         android:icon="@android:drawable/stat_notify_sync_noanim" />
     <item
-        android:id="@+id/startStopTimerButton"
-        android:onClick="onClickStartStopTimer"
-        android:orderInCategory="50"
-        android:title="@string/action_settings"
-        app:showAsAction="always"
-        android:icon="@android:drawable/ic_media_pause" />
-    <item
         android:id="@+id/settingsButton"
         android:onClick="onClickSettings"
         android:orderInCategory="75"
         android:title="@string/action_settings"
         app:showAsAction="always"
-        android:icon="@android:drawable/ic_menu_manage" />
+        android:icon="@drawable/ic_settings_24dp" />
 </menu>

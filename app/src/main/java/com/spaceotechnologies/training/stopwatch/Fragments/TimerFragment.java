@@ -42,7 +42,6 @@ public class TimerFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        this.runStopwatch();
     }
 
     public void setText(String text) {

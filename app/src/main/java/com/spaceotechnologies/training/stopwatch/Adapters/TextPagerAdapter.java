@@ -21,13 +21,11 @@ public class TextPagerAdapter extends FragmentPagerAdapter {
     private final int COUNT = 2;
     public ArrayList<Fragment> fragments = new ArrayList<>();
     String tag = "Adapter";
-    private Context context;
 
     private String tabTitles[];
 
     public TextPagerAdapter(FragmentManager fm, Context context) {
         super(fm);
-        this.context = context;
         this.tabTitles = context.getResources().getStringArray(R.array.titles_tabs);
     }
 

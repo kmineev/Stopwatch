@@ -19,19 +19,18 @@
     <string name="Violet">Violet</string>
     <string name="Black">Black</string>
 
-    <string name="notifytitle">STOPWATCH COUNT:</string>
-    <string name="action_start_pause">Start/Pause</string>
+    <string name="stopwatchnotifytitle">STOPWATCH COUNT:</string>
+    <string name="action_start">Start</string>
+    <string name="action_pause">Pause</string>
     <string name="timernotifytitle">TIMER COUNT:</string>
     <string name="timeout">TIME OUT</string>
 
-    <string-array
-        name="string_array_settings">
+    <string-array name="string_array_settings">
         <item>Background Color</item>
         <item>Font Color</item>
     </string-array>
 
-    <string-array
-        name="string_array_colors">
+    <string-array name="string_array_colors">
         <item>White</item>
         <item>Red</item>
         <item>Orange</item>
@@ -47,4 +46,6 @@
         <item>Stopwatch</item>
         <item>Timer</item>
     </string-array>
+
+    <integer name="NOTIFY_ID">102</integer>
 </resources>
