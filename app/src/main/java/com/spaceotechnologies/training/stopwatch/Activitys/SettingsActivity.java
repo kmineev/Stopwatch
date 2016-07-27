@@ -3,8 +3,10 @@ package com.spaceotechnologies.training.stopwatch.Activitys;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import com.spaceotechnologies.training.stopwatch.Fragments.SettingsFragment;
 import com.spaceotechnologies.training.stopwatch.R;
@@ -27,5 +29,19 @@ public class SettingsActivity extends AppCompatActivity {
             fragmentTransaction.add(R.id.settings_content, settingsFragment);
             fragmentTransaction.commit();
         }
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -11,39 +11,103 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.spaceotechnologies.training.stopwatch.Adapters.TextPagerAdapter;
 import com.spaceotechnologies.training.stopwatch.Fragments.CounterFragment;
 import com.spaceotechnologies.training.stopwatch.Fragments.TimerFragment;
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.Services.StopwatchService;
 import com.spaceotechnologies.training.stopwatch.Services.TimerService;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
+
+    private CounterFragment counterFragment;
+    private TimerFragment timerFragment;
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private CounterFragment counterFragment;
 
     private String color = "";
     private int newBackgroundColor = -1;
     private int oldBackgroundColorARGB = -1;
 
     private TextPagerAdapter adapter;
-    private final long mFrequency = 100;
-    private final int TICK_WHAT = 2;
+    private final long frequency = 100;
+    private final int TICK_STOPWATCH = 2;
     private final int TICK_TIMER = 5;
-    private TimerService m_timerService;
-    private TimerFragment timerFragment;
+    private TimerService timerService;
+
+    private Menu menu;
+
+    public class TextPagerAdapter extends FragmentPagerAdapter {
+
+        private final int COUNT = 2;
+        public ArrayList<Fragment> fragments = new ArrayList<>();
+        String tag = "Adapter";
+
+        private String tabTitles[];
+
+        public TextPagerAdapter(FragmentManager fm, Context context) {
+            super(fm);
+            this.tabTitles = context.getResources().getStringArray(R.array.titles_tabs);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            Log.d(tag, "In the getItem() event");
+            switch (i) {
+                case 0:
+                    fragments.add(0, CounterFragment.newInstance(0, tabTitles[0]));
+                    return fragments.get(0);
+                case 1:
+                    fragments.add(1, TimerFragment.newInstance(1, tabTitles[1]));
+                    return fragments.get(1);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return COUNT;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return tabTitles[position];
+        }
+
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            // save the appropriate reference depending on position
+            switch (position) {
+                case 0:
+                    counterFragment = (CounterFragment) createdFragment;
+                    break;
+                case 1:
+                    timerFragment = (TimerFragment) createdFragment;
+                    break;
+            }
+            return createdFragment;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,112 +129,159 @@ public class MainActivity extends AppCompatActivity {
         startService(new Intent(this, TimerService.class));
         bindTimerService();
 
-        mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), mFrequency);
-
-        timerHandler.sendMessageDelayed(Message.obtain(timerHandler, TICK_TIMER), mFrequency);
+        stopwatchHandler.sendMessageDelayed(Message.obtain(stopwatchHandler, TICK_STOPWATCH), frequency);
+        timerHandler.sendMessageDelayed(Message.obtain(timerHandler, TICK_TIMER), frequency);
     }
 
     private void setupViewPager(ViewPager viewPager) {
         adapter = new TextPagerAdapter(getSupportFragmentManager(), MainActivity.this);
         viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            @Override
+            public void onPageSelected(int position) {
+
+                switch (position) {
+                    case 0:
+                        if (stopwatchService != null) {
+                            if ( stopwatchService.isStopwatchRunning() ) {
+                                showPauseButtons();
+                            } else {
+                                showStartButtons();
+                            }
+                        }
+                        break;
+                    case 1:
+                        if (timerService != null ) {
+                            if ( timerService.isTimerRunning()) {
+                                showPauseButtons();
+                            } else {
+                                showStartButtons();
+                            }
+                        }
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+        });
     }
 
     // Connection to the backgorund StopwatchService
-    private StopwatchService m_stopwatchService;
+    private StopwatchService stopwatchService;
 
-    private ServiceConnection m_stopwatchServiceConn = new ServiceConnection() {
+    private ServiceConnection stopwatchServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            m_stopwatchService = ((StopwatchService.LocalBinder)service).getService();
+            stopwatchService = ((StopwatchService.LocalBinder)service).getService();
+            stopwatchService.start();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            m_stopwatchService = null;
+            stopwatchService = null;
         }
     };
 
     private void bindStopwatchService() {
         bindService(new Intent(this, StopwatchService.class),
-                m_stopwatchServiceConn, Context.BIND_AUTO_CREATE);
+                stopwatchServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private Handler mHandler = new Handler() {
+    private Handler stopwatchHandler = new Handler() {
         public void handleMessage(Message m) {
             updateElapsedTime();
-            sendMessageDelayed(Message.obtain(this, TICK_WHAT), mFrequency);
+            sendMessageDelayed(Message.obtain(this, TICK_STOPWATCH), frequency);
         }
     };
 
     public void updateElapsedTime() {
-        if ( m_stopwatchService != null && counterFragment != null) {
-            counterFragment.setText(m_stopwatchService.getFormattedElapsedTime());
+        if ( stopwatchService != null && counterFragment != null) {
+            counterFragment.setText(stopwatchService.getFormattedElapsedTime());
         }
     }
 
     private Handler timerHandler = new Handler() {
         public void handleMessage(Message m) {
             updateLeftTime();
-            sendMessageDelayed(Message.obtain(this, TICK_TIMER), mFrequency);
+            sendMessageDelayed(Message.obtain(this, TICK_TIMER), frequency);
         }
     };
 
     private void bindTimerService() {
         bindService(new Intent(this, TimerService.class),
-                m_timerServiceConn, Context.BIND_AUTO_CREATE);
+                timerServiceConn, Context.BIND_AUTO_CREATE);
     }
 
-    private ServiceConnection m_timerServiceConn = new ServiceConnection() {
+    private ServiceConnection timerServiceConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            m_timerService = ((TimerService.LocalBinder)service).getService();
+            timerService = ((TimerService.LocalBinder)service).getService();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            m_timerService = null;
+            timerService = null;
         }
     };
 
     public void updateLeftTime() {
-        if ( m_timerService != null && timerFragment != null) {
-            timerFragment.setText(m_timerService.getFormattedLeftTime());
+        if ( timerService != null && timerFragment != null) {
+            timerFragment.setText(timerService.getFormattedLeftTime());
+            if (timerService.isTimeout() && viewPager.getCurrentItem() == 1) {
+                showStartButtons();
+            }
         }
     }
 
     @Override
     protected void onDestroy() {
-        mHandler.removeMessages(TICK_WHAT);
+        stopwatchHandler.removeMessages(TICK_STOPWATCH);
         unbindStopwatchService();
         super.onDestroy();
     }
 
     private void unbindStopwatchService() {
-        if ( m_stopwatchService != null ) {
-            unbindService(m_stopwatchServiceConn);
+        if ( stopwatchService != null ) {
+            unbindService(stopwatchServiceConnection);
         }
     }
 
     public void onClickStartPause(MenuItem item) {
-        if  (m_stopwatchService.isStopwatchRunning()) {
-            m_stopwatchService.pause();
-        } else {
-            m_timerService.pause();
-            m_stopwatchService.start();
+
+        switch (viewPager.getCurrentItem()) {
+            case 0:
+                if  (stopwatchService.isStopwatchRunning()) {
+                    showStartButtons();
+                    stopwatchService.pause();
+                } else {
+                    showPauseButtons();
+                    timerService.pause();
+                    stopwatchService.start();
+                }
+                break;
+            case 1:
+                if (timerService.isTimerRunning()) {
+                    showStartButtons();
+                    timerService.pause();
+                } else {
+                    if  (!timerService.isTimeout()) {
+                        showPauseButtons();
+                        stopwatchService.pause();
+                        timerService.start();
+                    }
+                }
+                break;
         }
     }
 
     public void onClickReset(MenuItem item) {
-        m_stopwatchService.reset();
-    }
-
-    public void onClickStartStopTimer(MenuItem item) {
-        if (m_timerService.isTimerRunning()) {
-            m_timerService.pause();
-        } else {
-            m_stopwatchService.pause();
-            m_timerService.start();
-        }
+        menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_play_arrow_24dp));
+        stopwatchService.reset();
     }
 
     public void onClickSettings(MenuItem item) {
@@ -238,14 +349,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        counterFragment = (CounterFragment) adapter.fragments.get(0);
-        m_stopwatchService.start();
-
-        if  (adapter.fragments.get(1) != null) {
-            timerFragment = (TimerFragment) adapter.fragments.get(1);
-        }
-
+        this.menu = menu;
         return true;
     }
 
@@ -260,5 +364,15 @@ public class MainActivity extends AppCompatActivity {
         setIntent.addCategory(Intent.CATEGORY_HOME);
         setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(setIntent);
+    }
+
+    private void showPauseButtons() {
+        MenuItem menuItem = menu.getItem(0).setTitle(R.string.action_pause);
+        menuItem.setIcon(getResources().getDrawable(R.drawable.ic_pause_24dp));
+    }
+
+    private void showStartButtons() {
+        MenuItem menuItem = menu.getItem(0).setTitle(R.string.action_start);
+        menuItem.setIcon(getResources().getDrawable(R.drawable.ic_play_arrow_24dp));
     }
 }

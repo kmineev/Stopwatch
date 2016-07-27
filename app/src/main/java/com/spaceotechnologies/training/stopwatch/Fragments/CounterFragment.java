@@ -18,10 +18,6 @@ public class CounterFragment extends Fragment {
     private String title;
     private int page;
 
-    private int seconds = 0;
-    private boolean isStoped = false;
-    private static final int NOTIFY_ID = 101;
-
     private static String tag = "CounterFragment";
 
     @Override
@@ -32,6 +28,7 @@ public class CounterFragment extends Fragment {
     }
 
     public static CounterFragment newInstance(int page, String title) {
+
         Log.d(tag, "In the newInstance() event");
         CounterFragment counterFragment = new CounterFragment();
         Bundle args = new Bundle();

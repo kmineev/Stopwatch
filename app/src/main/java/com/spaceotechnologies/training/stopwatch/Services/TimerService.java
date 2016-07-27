@@ -7,12 +7,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
+import android.support.v4.app.NotificationCompat;
 
 import com.spaceotechnologies.training.stopwatch.Activitys.MainActivity;
 import com.spaceotechnologies.training.stopwatch.Base.Timer;
@@ -20,35 +19,32 @@ import com.spaceotechnologies.training.stopwatch.R;
 
 public class TimerService extends Service {
 
-    private static final int NOTIFY_ID = 201;
-    private Timer m_timer;
-    private NotificationManager m_notificationMgr;
-    private Notification.Builder builder;
-    private NotificationManager notificationManager;
+    private Timer timer;
+    private NotificationCompat.Builder builder;
     private final int startValueTimer = 10000;
-    private final long mFrequency = 100;
+    private final long frequency = 100;
     private final int TICK_WHAT = 5;
-    private LocalBinder m_binder = new LocalBinder();
+    private LocalBinder binder = new LocalBinder();
     private boolean isFinalNotification = false;
     private Resources res;
+    private boolean isTimeout = false;
+    private NotificationManager notificationManager;
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        return m_binder;
+        return binder;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        m_timer = new Timer();
-        m_notificationMgr = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        timer = new Timer();
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         createNotification();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("LocalService", "Received start id " + startId + ": " + intent);
         return START_STICKY;
     }
 
@@ -60,86 +56,86 @@ public class TimerService extends Service {
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message m) {
-
             updateNotification();
-            sendMessageDelayed(Message.obtain(this, TICK_WHAT), mFrequency);
+            sendMessageDelayed(Message.obtain(this, TICK_WHAT), frequency);
         }
     };
 
-
     public void createNotification() {
         Context context = getApplicationContext();
-        Intent notificationIntent = new Intent(context, MainActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(context,
-                0, notificationIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
         res = context.getResources();
-        builder = new Notification.Builder(this);
 
-        builder
-                .setContentIntent(contentIntent)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(res, R.mipmap.ic_launcher))
-                .setAutoCancel(false)
-                .setContentTitle(res.getString(R.string.timernotifytitle));
+        builder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_timer_24dp)
+                        .setContentTitle(res.getString(R.string.timernotifytitle))
+                        .setOngoing(true);
 
-        notificationManager = (NotificationManager) context
-                .getSystemService(Context.NOTIFICATION_SERVICE);
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.setAction(Intent.ACTION_MAIN);
+        resultIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
+                resultIntent, 0);
+        builder.setContentIntent(resultPendingIntent);
 
     }
 
+    public boolean isTimeout() {
+        return isTimeout;
+    }
+
     public void updateNotification() {
+
         builder.setContentText(getFormattedLeftTime());
-        Notification notification;
 
         if (getDifference() < 1000) {
+            isTimeout = true;
             if (!isFinalNotification) {
                 isFinalNotification = true;
-                builder.setTicker(res.getString(R.string.timeout)).setWhen(System.currentTimeMillis());
-                notification = builder.build();
-                notification.flags |= Notification.FLAG_NO_CLEAR | Notification.PRIORITY_MAX |Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_INSISTENT;;
-                notification.defaults = Notification.DEFAULT_SOUND |
-                        Notification.DEFAULT_VIBRATE;
-                notificationManager.notify(NOTIFY_ID, notification);
+                builder.setTicker(res.getString(R.string.timeout));
+                builder.setAutoCancel(true);
+                Notification notification = builder.build();
+                notification.defaults = Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE;
+                notificationManager.notify(res.getInteger(R.integer.NOTIFY_ID), notification);
                 pause();
             }
         } else {
-            notification = builder.build();
-            notification.flags |= Notification.FLAG_NO_CLEAR | Notification.PRIORITY_MAX |Notification.FLAG_FOREGROUND_SERVICE;
-            notificationManager.notify(NOTIFY_ID, notification);
+            notificationManager.notify(res.getInteger(R.integer.NOTIFY_ID), builder.build());
         }
     }
 
     public void showNotification() {
         updateNotification();
-        mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), mFrequency);
+        mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), frequency);
     }
 
     public void hideNotification() {
-        m_notificationMgr.cancel(NOTIFY_ID);
+        notificationManager.cancel(res.getInteger(R.integer.NOTIFY_ID));
         mHandler.removeMessages(TICK_WHAT);
     }
 
     public void start() {
         if (!isFinalNotification) {
-            m_timer.start();
-
+            timer.start();
             showNotification();
         }
     }
 
     public void pause() {
-        m_timer.pause();
-
-        //hideNotification();
+        timer.pause();
+        if (!isFinalNotification) {
+            hideNotification();
+        }
     }
 
     public void reset() {
-        m_timer.reset();
+        timer.reset();
+        hideNotification();
     }
 
     public long getElapsedTime() {
-        return m_timer.getElapsedTime();
+        return timer.getElapsedTime();
     }
 
     public String getFormattedLeftTime() {
@@ -151,7 +147,7 @@ public class TimerService extends Service {
     }
 
     public boolean isTimerRunning() {
-        return m_timer.isRunning();
+        return timer.isRunning();
     }
 
     private String formatLeftTime(long now) {
