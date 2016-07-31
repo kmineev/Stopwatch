@@ -40,7 +40,7 @@ public class SettingsFragment extends ListFragment {
                 fragmentTransaction.replace(R.id.settings_content, colorsListFragment);
                 break;
             case 1:
-                System.out.println("1");
+                System.out.println(1);
                 break;
         }
 

@@ -24,6 +24,8 @@
     <string name="action_pause">Pause</string>
     <string name="timernotifytitle">TIMER COUNT:</string>
     <string name="timeout">TIME OUT</string>
+    <string name="page">Page</string>
+    <string name="title">Title</string>
 
     <string-array name="string_array_settings">
         <item>Background Color</item>
