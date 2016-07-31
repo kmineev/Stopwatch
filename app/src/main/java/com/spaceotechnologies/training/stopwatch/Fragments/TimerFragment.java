@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.spaceotechnologies.training.stopwatch.Applications.MyApplication;
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.Views.AutoResizeTextView;
 
@@ -16,6 +17,7 @@ public class TimerFragment extends Fragment {
 
     private String title;
     private int page;
+    private AutoResizeTextView autoResizeTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -26,8 +28,8 @@ public class TimerFragment extends Fragment {
     public static TimerFragment newInstance(int page, String title) {
         TimerFragment timerFragment = new TimerFragment();
         Bundle args = new Bundle();
-        args.putInt("Page", page);
-        args.putString("Title", title);
+        args.putInt(MyApplication.getAppContext().getString(R.string.page), page);
+        args.putString(MyApplication.getAppContext().getString(R.string.title), title);
         timerFragment.setArguments(args);
         return timerFragment;
     }
@@ -35,16 +37,17 @@ public class TimerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        page = getArguments().getInt("Page");
-        title = getArguments().getString("Title");
+        page = getArguments().getInt(MyApplication.getAppContext().getString(R.string.page));
+        title = getArguments().getString(MyApplication.getAppContext().getString(R.string.title));
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        autoResizeTextView = ((AutoResizeTextView) getView().findViewById(R.id.timer_fr_timer));
         super.onViewCreated(view, savedInstanceState);
     }
 
     public void setText(String text) {
-        ((AutoResizeTextView) getView().findViewById(R.id.timer_fr_timer)).setText(text);
+        autoResizeTextView.setText(text);
     }
 }

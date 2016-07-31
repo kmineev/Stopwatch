@@ -12,31 +12,24 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.spaceotechnologies.training.stopwatch.Adapters.TextPagerAdapter;
 import com.spaceotechnologies.training.stopwatch.Fragments.CounterFragment;
 import com.spaceotechnologies.training.stopwatch.Fragments.TimerFragment;
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.Services.StopwatchService;
 import com.spaceotechnologies.training.stopwatch.Services.TimerService;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity {
-
-    private CounterFragment counterFragment;
-    private TimerFragment timerFragment;
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -51,63 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private final int TICK_STOPWATCH = 2;
     private final int TICK_TIMER = 5;
     private TimerService timerService;
+    private StopwatchService stopwatchService;
 
     private Menu menu;
-
-    public class TextPagerAdapter extends FragmentPagerAdapter {
-
-        private final int COUNT = 2;
-        public ArrayList<Fragment> fragments = new ArrayList<>();
-        String tag = "Adapter";
-
-        private String tabTitles[];
-
-        public TextPagerAdapter(FragmentManager fm, Context context) {
-            super(fm);
-            this.tabTitles = context.getResources().getStringArray(R.array.titles_tabs);
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            Log.d(tag, "In the getItem() event");
-            switch (i) {
-                case 0:
-                    fragments.add(0, CounterFragment.newInstance(0, tabTitles[0]));
-                    return fragments.get(0);
-                case 1:
-                    fragments.add(1, TimerFragment.newInstance(1, tabTitles[1]));
-                    return fragments.get(1);
-                default:
-                    return null;
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return COUNT;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return tabTitles[position];
-        }
-
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-            // save the appropriate reference depending on position
-            switch (position) {
-                case 0:
-                    counterFragment = (CounterFragment) createdFragment;
-                    break;
-                case 1:
-                    timerFragment = (TimerFragment) createdFragment;
-                    break;
-            }
-            return createdFragment;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
+
         startService(new Intent(this, StopwatchService.class));
         bindStopwatchService();
 
@@ -137,9 +77,10 @@ public class MainActivity extends AppCompatActivity {
         adapter = new TextPagerAdapter(getSupportFragmentManager(), MainActivity.this);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            
+
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
             @Override
             public void onPageSelected(int position) {
@@ -147,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (position) {
                     case 0:
                         if (stopwatchService != null) {
-                            if ( stopwatchService.isStopwatchRunning() ) {
+                            if (stopwatchService.isStopwatchRunning()) {
                                 showPauseButtons();
                             } else {
                                 showStartButtons();
@@ -155,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case 1:
-                        if (timerService != null ) {
-                            if ( timerService.isTimerRunning()) {
+                        if (timerService != null) {
+                            if (timerService.isTimerRunning()) {
                                 showPauseButtons();
                             } else {
                                 showStartButtons();
@@ -167,17 +108,26 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrollStateChanged(int state) {
+            }
         });
     }
 
+    protected Fragment findFragmentByPosition(int position) {
+        int pagerId = this.viewPager.getId();
+        return getSupportFragmentManager().findFragmentByTag(getFragmentTag(pagerId, position));
+    }
+
+    private String getFragmentTag(int viewPagerId, int fragmentPosition) {
+        return "android:switcher:" + viewPagerId + ":" + fragmentPosition;
+    }
+
     // Connection to the backgorund StopwatchService
-    private StopwatchService stopwatchService;
 
     private ServiceConnection stopwatchServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            stopwatchService = ((StopwatchService.LocalBinder)service).getService();
+            stopwatchService = ((StopwatchService.LocalBinder) service).getService();
             stopwatchService.start();
         }
 
@@ -189,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void bindStopwatchService() {
         bindService(new Intent(this, StopwatchService.class),
-                stopwatchServiceConnection, Context.BIND_AUTO_CREATE);
+                stopwatchServiceConnection, BIND_AUTO_CREATE);
     }
 
     private Handler stopwatchHandler = new Handler() {
@@ -200,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void updateElapsedTime() {
-        if ( stopwatchService != null && counterFragment != null) {
-            counterFragment.setText(stopwatchService.getFormattedElapsedTime());
+        if (stopwatchService != null && findFragmentByPosition(0) != null) {
+            ((CounterFragment) findFragmentByPosition(0)).setText(stopwatchService.getFormattedElapsedTime());
         }
     }
 
@@ -214,13 +164,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void bindTimerService() {
         bindService(new Intent(this, TimerService.class),
-                timerServiceConn, Context.BIND_AUTO_CREATE);
+                timerServiceConnection, BIND_AUTO_CREATE);
     }
 
-    private ServiceConnection timerServiceConn = new ServiceConnection() {
+    private ServiceConnection timerServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            timerService = ((TimerService.LocalBinder)service).getService();
+            timerService = ((TimerService.LocalBinder) service).getService();
         }
 
         @Override
@@ -230,8 +180,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void updateLeftTime() {
-        if ( timerService != null && timerFragment != null) {
-            timerFragment.setText(timerService.getFormattedLeftTime());
+        if (timerService != null && findFragmentByPosition(1) != null) {
+            ((TimerFragment) findFragmentByPosition(1)).setText(timerService.getFormattedLeftTime());
             if (timerService.isTimeout() && viewPager.getCurrentItem() == 1) {
                 showStartButtons();
             }
@@ -242,20 +192,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         stopwatchHandler.removeMessages(TICK_STOPWATCH);
         unbindStopwatchService();
+        unbindTimerService();
         super.onDestroy();
     }
 
     private void unbindStopwatchService() {
-        if ( stopwatchService != null ) {
+        if (stopwatchService != null) {
             unbindService(stopwatchServiceConnection);
         }
     }
+
+    private void unbindTimerService() {
+        if (timerService != null) {
+            unbindService(timerServiceConnection);
+        }
+    }
+
 
     public void onClickStartPause(MenuItem item) {
 
         switch (viewPager.getCurrentItem()) {
             case 0:
-                if  (stopwatchService.isStopwatchRunning()) {
+                if (stopwatchService.isStopwatchRunning()) {
                     showStartButtons();
                     stopwatchService.pause();
                 } else {
@@ -269,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
                     showStartButtons();
                     timerService.pause();
                 } else {
-                    if  (!timerService.isTimeout()) {
+                    if (!timerService.isTimeout()) {
                         showPauseButtons();
                         stopwatchService.pause();
                         timerService.start();
@@ -280,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickReset(MenuItem item) {
-        menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_play_arrow_24dp));
+        menu.getItem(0).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_play_arrow_24dp));
         stopwatchService.reset();
     }
 
@@ -368,11 +326,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showPauseButtons() {
         MenuItem menuItem = menu.getItem(0).setTitle(R.string.action_pause);
-        menuItem.setIcon(getResources().getDrawable(R.drawable.ic_pause_24dp));
+        menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_pause_24dp));
     }
 
     private void showStartButtons() {
         MenuItem menuItem = menu.getItem(0).setTitle(R.string.action_start);
-        menuItem.setIcon(getResources().getDrawable(R.drawable.ic_play_arrow_24dp));
+        menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_play_arrow_24dp));
     }
+
+
 }

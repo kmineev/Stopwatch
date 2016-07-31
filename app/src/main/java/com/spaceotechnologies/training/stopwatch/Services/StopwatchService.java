@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.spaceotechnologies.training.stopwatch.Activitys.MainActivity;
 import com.spaceotechnologies.training.stopwatch.Base.Stopwatch;
@@ -26,6 +27,8 @@ public class StopwatchService extends Service {
             return StopwatchService.this;
         }
     }
+
+    private final String LOG_TAG = "StopwatchService";
 
     private Stopwatch stopwatch;
     private LocalBinder binder = new LocalBinder();
@@ -45,12 +48,14 @@ public class StopwatchService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        createNotification();
         return binder;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(LOG_TAG, "onCreate");
         stopwatch = new Stopwatch();
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         createNotification();
@@ -58,6 +63,7 @@ public class StopwatchService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LOG_TAG, "onStartCommand");
         return START_STICKY;
     }
 
@@ -90,7 +96,6 @@ public class StopwatchService extends Service {
     }
 
     public void showNotification() {
-
         updateNotification();
         mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), frequency);
     }
@@ -133,5 +138,11 @@ public class StopwatchService extends Service {
         seconds = now / 1000;
         sb.append((seconds));
         return sb.toString();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(LOG_TAG, "onUnbind");
+        return super.onUnbind(intent);
     }
 }
