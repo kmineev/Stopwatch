@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getFragmentTag(int viewPagerId, int fragmentPosition) {
-        return "android:switcher:" + viewPagerId + ":" + fragmentPosition;
+        return getResources().getString(R.string.android_switcher) + viewPagerId + ':' + fragmentPosition;
     }
 
     // Connection to the backgorund StopwatchService
