@@ -27,6 +27,8 @@
     <string name="page">Page</string>
     <string name="title">Title</string>
 
+    <string name="android_switcher">android:switcher:</string>
+
     <string-array name="string_array_settings">
         <item>Background Color</item>
         <item>Font Color</item>
@@ -49,5 +51,10 @@
         <item>Timer</item>
     </string-array>
 
+
+
+
     <integer name="NOTIFY_ID">102</integer>
+
+
 </resources>
