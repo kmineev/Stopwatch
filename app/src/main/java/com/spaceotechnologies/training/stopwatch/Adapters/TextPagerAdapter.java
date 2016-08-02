@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.util.Log;
 
 import com.spaceotechnologies.training.stopwatch.Fragments.CounterFragment;
 import com.spaceotechnologies.training.stopwatch.Fragments.TimerFragment;
@@ -27,7 +26,6 @@ public class TextPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int i) {
-        Log.d(tag, "In the getItem() event");
         switch (i) {
             case 0:
                 return CounterFragment.newInstance(0, tabTitles[0]);
