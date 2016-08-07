@@ -2,9 +2,11 @@ package com.spaceotechnologies.training.stopwatch.Activitys;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +19,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,33 +38,35 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
+    public static final int STOPWATCH_NUMBER = 0;
+    public static final int TIMER_NUMBER = 1;
+    private static final int REQUEST_CODE = 1;
+
     private String color = "";
     private int newBackgroundColor = -1;
     private int oldBackgroundColorARGB = -1;
 
     private TextPagerAdapter adapter;
-    private final long frequency = 100;
+    private final long FREQUENCY = 100;
     private final int TICK_STOPWATCH = 2;
     private final int TICK_TIMER = 5;
+    private static final int ANIMATION_DURATION = 5000;
+
     private TimerService timerService;
     private StopwatchService stopwatchService;
+    private BroadcastReceiver broadcastReceiver;
+    private int currentPage = 0;
 
     private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(getResources().getString(R.string.log_app), "MainActivity onCreate");
         setContentView(R.layout.activity_main);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
-
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
-
 
         startService(new Intent(this, StopwatchService.class));
         bindStopwatchService();
@@ -69,13 +74,41 @@ public class MainActivity extends AppCompatActivity {
         startService(new Intent(this, TimerService.class));
         bindTimerService();
 
-        stopwatchHandler.sendMessageDelayed(Message.obtain(stopwatchHandler, TICK_STOPWATCH), frequency);
-        timerHandler.sendMessageDelayed(Message.obtain(timerHandler, TICK_TIMER), frequency);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                currentPage = intent.getIntExtra(getResources().getString(R.string.current_page), STOPWATCH_NUMBER);
+                setupViewPager(viewPager);
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter(getResources().getString(R.string.broadcast_action));
+        registerReceiver(broadcastReceiver, intentFilter);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
+        stopwatchHandler.sendMessageDelayed(Message.obtain(stopwatchHandler, TICK_STOPWATCH), FREQUENCY);
+        timerHandler.sendMessageDelayed(Message.obtain(timerHandler, TICK_TIMER), FREQUENCY);
+    }
+
+    @Override
+    protected void onStart() {
+        Log.d(getResources().getString(R.string.log_app), "MainActivity onStart");
+        super.onStart();
     }
 
     private void setupViewPager(ViewPager viewPager) {
+
+        Log.d(getResources().getString(R.string.log_app), "MainActivity setupViewPager");
+
         adapter = new TextPagerAdapter(getSupportFragmentManager(), MainActivity.this);
         viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(currentPage);
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
@@ -86,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
 
                 switch (position) {
-                    case 0:
+                    case STOPWATCH_NUMBER:
                         if (stopwatchService != null) {
                             if (stopwatchService.isStopwatchRunning()) {
                                 showPauseButtons();
@@ -95,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         break;
-                    case 1:
+                    case TIMER_NUMBER:
                         if (timerService != null) {
                             if (timerService.isTimerRunning()) {
                                 showPauseButtons();
@@ -122,22 +155,22 @@ public class MainActivity extends AppCompatActivity {
         return getResources().getString(R.string.android_switcher) + viewPagerId + ':' + fragmentPosition;
     }
 
-    // Connection to the backgorund StopwatchService
-
     private ServiceConnection stopwatchServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(getResources().getString(R.string.log_app), "MainActivity onServiceConnected Stopwatch");
             stopwatchService = ((StopwatchService.LocalBinder) service).getService();
-            stopwatchService.start();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            stopwatchService = null;
+            Log.d(getResources().getString(R.string.log_app), "MainActivity onServiceDisconnected Stopwatch");
         }
     };
 
     private void bindStopwatchService() {
+        Log.d(getResources().getString(R.string.log_app), "MainActivity bindStopwatchService");
+
         bindService(new Intent(this, StopwatchService.class),
                 stopwatchServiceConnection, BIND_AUTO_CREATE);
     }
@@ -145,24 +178,25 @@ public class MainActivity extends AppCompatActivity {
     private Handler stopwatchHandler = new Handler() {
         public void handleMessage(Message m) {
             updateElapsedTime();
-            sendMessageDelayed(Message.obtain(this, TICK_STOPWATCH), frequency);
+            sendMessageDelayed(Message.obtain(this, TICK_STOPWATCH), FREQUENCY);
         }
     };
 
     public void updateElapsedTime() {
-        if (stopwatchService != null && findFragmentByPosition(0) != null) {
-            ((CounterFragment) findFragmentByPosition(0)).setText(stopwatchService.getFormattedElapsedTime());
+        if (stopwatchService != null && findFragmentByPosition(STOPWATCH_NUMBER) != null) {
+            ((CounterFragment) findFragmentByPosition(STOPWATCH_NUMBER)).setText(stopwatchService.getFormattedElapsedTime());
         }
     }
 
     private Handler timerHandler = new Handler() {
         public void handleMessage(Message m) {
             updateLeftTime();
-            sendMessageDelayed(Message.obtain(this, TICK_TIMER), frequency);
+            sendMessageDelayed(Message.obtain(this, TICK_TIMER), FREQUENCY);
         }
     };
 
     private void bindTimerService() {
+        Log.d(getResources().getString(R.string.log_app), "MainActivity bindTimerService");
         bindService(new Intent(this, TimerService.class),
                 timerServiceConnection, BIND_AUTO_CREATE);
     }
@@ -170,19 +204,21 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConnection timerServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(getResources().getString(R.string.log_app), "MainActivity onServiceConnected Timer");
             timerService = ((TimerService.LocalBinder) service).getService();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            timerService = null;
+            Log.d(getResources().getString(R.string.log_app), "MainActivity onServiceDisconnected Timer");
+            //timerService = null;
         }
     };
 
     public void updateLeftTime() {
-        if (timerService != null && findFragmentByPosition(1) != null) {
-            ((TimerFragment) findFragmentByPosition(1)).setText(timerService.getFormattedLeftTime());
-            if (timerService.isTimeout() && viewPager.getCurrentItem() == 1) {
+        if (timerService != null && findFragmentByPosition(TIMER_NUMBER) != null) {
+            ((TimerFragment) findFragmentByPosition(TIMER_NUMBER)).setText(timerService.getFormattedLeftTime());
+            if (timerService.isTimeout() && viewPager.getCurrentItem() == TIMER_NUMBER) {
                 showStartButtons();
             }
         }
@@ -190,29 +226,32 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        Log.d(getResources().getString(R.string.log_app), "MainActivity onDestroy");
         stopwatchHandler.removeMessages(TICK_STOPWATCH);
         unbindStopwatchService();
         unbindTimerService();
+        unregisterReceiver(broadcastReceiver);
         super.onDestroy();
     }
 
     private void unbindStopwatchService() {
+        Log.d(getResources().getString(R.string.log_app), "MainActivity unbindStopwatchService");
         if (stopwatchService != null) {
             unbindService(stopwatchServiceConnection);
         }
     }
 
     private void unbindTimerService() {
+        Log.d(getResources().getString(R.string.log_app), "MainActivity unbindTimerService");
         if (timerService != null) {
             unbindService(timerServiceConnection);
         }
     }
 
-
     public void onClickStartPause(MenuItem item) {
 
         switch (viewPager.getCurrentItem()) {
-            case 0:
+            case STOPWATCH_NUMBER:
                 if (stopwatchService.isStopwatchRunning()) {
                     showStartButtons();
                     stopwatchService.pause();
@@ -222,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
                     stopwatchService.start();
                 }
                 break;
-            case 1:
+            case TIMER_NUMBER:
                 if (timerService.isTimerRunning()) {
                     showStartButtons();
                     timerService.pause();
@@ -244,11 +283,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        Log.d(getResources().getString(R.string.log_app), "MainActivity onActivityResult");
+
         if (data == null) {
             return;
         }
@@ -292,7 +334,7 @@ public class MainActivity extends AppCompatActivity {
         final LinearLayout counterlL = (LinearLayout) findViewById(R.id.counterBackground);
 
         ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), oldBackgroundColorARGB, newColor);
-        colorAnimation.setDuration(5000);
+        colorAnimation.setDuration(ANIMATION_DURATION);
         colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
             @Override
@@ -333,6 +375,4 @@ public class MainActivity extends AppCompatActivity {
         MenuItem menuItem = menu.getItem(0).setTitle(R.string.action_start);
         menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_play_arrow_24dp));
     }
-
-
 }

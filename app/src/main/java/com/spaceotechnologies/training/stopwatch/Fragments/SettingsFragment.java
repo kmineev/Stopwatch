@@ -16,6 +16,10 @@ import com.spaceotechnologies.training.stopwatch.R;
  */
 public class SettingsFragment extends ListFragment {
 
+
+    private final int BACKGROUND_COLOR_NUMBER = 0;
+    private final int FOREGROUND_COLOR_NUMBER = 1;
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -35,11 +39,11 @@ public class SettingsFragment extends ListFragment {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         switch (position) {
-            case 0:
+            case BACKGROUND_COLOR_NUMBER:
                 ColorsListFragment colorsListFragment = new ColorsListFragment();
                 fragmentTransaction.replace(R.id.settings_content, colorsListFragment);
                 break;
-            case 1:
+            case FOREGROUND_COLOR_NUMBER:
                 System.out.println(1);
                 break;
         }
