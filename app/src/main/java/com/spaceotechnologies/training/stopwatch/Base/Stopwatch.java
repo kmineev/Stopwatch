@@ -8,6 +8,10 @@ import java.util.List;
  */
 public class Stopwatch {
 
+    public long getPauseOffset() {
+        return pauseOffset;
+    }
+
     public interface GetTime {
         public long now();
     }
@@ -23,7 +27,7 @@ public class Stopwatch {
      * What is the stopwatch doing?
      */
     public enum State {
-        PAUSED, RUNNING
+        PAUSED, RUNNING, BINDED
     }
 
     private GetTime time;
@@ -38,8 +42,13 @@ public class Stopwatch {
         reset();
     }
 
+    public Stopwatch(long startTime) {
+        time = systemTime;
+        reset(startTime);
+    }
+
     public Stopwatch(GetTime time) {
-        time = time;
+        this.time = time;
         reset();
     }
 
@@ -52,6 +61,10 @@ public class Stopwatch {
             pauseOffset = getElapsedTime();
             stopTime = 0;
             startTime = time.now();
+            state = State.RUNNING;
+        } else if (state == State.BINDED) {
+            pauseOffset = 0;
+            stopTime = 0;
             state = State.RUNNING;
         }
     }
@@ -77,11 +90,11 @@ public class Stopwatch {
         laps.clear();
     }
 
-    /**
-     * Record a lap at the current time.
-     */
-    public void lap() {
-        laps.add(getElapsedTime());
+    public void reset(long startTime) {
+        state = State.BINDED;
+        this.startTime = startTime;
+        stopTime = 0;
+        this.pauseOffset = 0;
     }
 
     /***
@@ -102,5 +115,15 @@ public class Stopwatch {
     public boolean isRunning() {
         return (state == State.RUNNING);
     }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+
 
 }

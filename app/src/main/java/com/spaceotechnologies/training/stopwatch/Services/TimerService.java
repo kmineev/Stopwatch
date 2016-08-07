@@ -2,51 +2,25 @@ package com.spaceotechnologies.training.stopwatch.Services;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
-import com.spaceotechnologies.training.stopwatch.Activitys.MainActivity;
+import com.spaceotechnologies.training.stopwatch.Applications.MyApplication;
 import com.spaceotechnologies.training.stopwatch.Base.Timer;
 import com.spaceotechnologies.training.stopwatch.R;
 
-public class TimerService extends Service {
+import static com.spaceotechnologies.training.stopwatch.Activitys.MainActivity.TIMER_NUMBER;
 
+public class TimerService extends BaseService {
+
+    private final int START_VALUE_TIMER = 15000;
     private Timer timer;
-    private NotificationCompat.Builder builder;
-    private final int startValueTimer = 10000;
-    private final long frequency = 100;
-    private final int TICK_WHAT = 5;
-    private LocalBinder binder = new LocalBinder();
     private boolean isFinalNotification = false;
-    private Resources res;
-    private boolean isTimeout = false;
-    private NotificationManager notificationManager;
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        timer = new Timer();
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        createNotification();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_STICKY;
-    }
 
     public class LocalBinder extends Binder {
         public TimerService getService() {
@@ -54,68 +28,48 @@ public class TimerService extends Service {
         }
     }
 
-    private Handler mHandler = new Handler() {
-        public void handleMessage(Message m) {
-            updateNotification();
-            sendMessageDelayed(Message.obtain(this, TICK_WHAT), frequency);
-        }
-    };
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(getResources().getString(R.string.log_app), "TimerService onCreate");
 
-    public void createNotification() {
-        Context context = getApplicationContext();
-        res = context.getResources();
+        sharedPref = MyApplication.getPreferences();
 
-        builder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_timer_24dp)
-                        .setContentTitle(res.getString(R.string.timernotifytitle))
-                        .setOngoing(true);
-
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.setAction(Intent.ACTION_MAIN);
-        resultIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
-                resultIntent, 0);
-        builder.setContentIntent(resultPendingIntent);
-
-    }
-
-    public boolean isTimeout() {
-        return isTimeout;
-    }
-
-    public void updateNotification() {
-
-        builder.setContentText(getFormattedLeftTime());
-
-        if (getDifference() < 1000) {
-            isTimeout = true;
-            if (!isFinalNotification) {
-                isFinalNotification = true;
-                builder.setTicker(res.getString(R.string.timeout));
-                builder.setAutoCancel(true);
-                Notification notification = builder.build();
-                notification.defaults = Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE;
-                notificationManager.notify(res.getInteger(R.integer.NOTIFY_ID), notification);
-                pause();
-            }
+        if (sharedPref.getBoolean(getString(R.string.saved_is_timer_running), false)) {
+            timer = new Timer(sharedPref.getLong(getString(R.string.saved_start_time_timer), DEFAULT_TIME));
+            startTimerService();
         } else {
-            notificationManager.notify(res.getInteger(R.integer.NOTIFY_ID), builder.build());
+            timer = new Timer();
         }
+        binder = new LocalBinder();
     }
 
-    public void showNotification() {
-        updateNotification();
-        mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), frequency);
+    private void startTimerService() {
+        createNotification();
+        this.start();
     }
 
-    public void hideNotification() {
-        notificationManager.cancel(res.getInteger(R.integer.NOTIFY_ID));
-        mHandler.removeMessages(TICK_WHAT);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(getResources().getString(R.string.log_app), "TimerService onStartCommand");
+        return START_STICKY;
+    }
+
+    @Override
+    protected NotificationCompat.Builder setBuilder() {
+        return new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_timer_24dp)
+                .setContentTitle(MyApplication.getAppContext().getString(R.string.timernotifytitle))
+                .setOngoing(true);
+    }
+
+    @Override
+    public String setText() {
+        return getFormattedLeftTime();
     }
 
     public void start() {
+        Log.d(getResources().getString(R.string.log_app), "TimerService start");
         if (!isFinalNotification) {
             timer.start();
             showNotification();
@@ -134,6 +88,73 @@ public class TimerService extends Service {
         hideNotification();
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.d(getResources().getString(R.string.log_app), "TimerService onBind");
+
+        if (isTimerRunning() || isTimeout()) {
+            sendPageItemReceiver();
+        }
+
+        return super.onBind(intent);
+    }
+
+    private void sendPageItemReceiver() {
+        Intent intent1 = new Intent(getResources().getString(R.string.broadcast_action));
+        intent1.putExtra(getResources().getString(R.string.current_page), TIMER_NUMBER);
+        sendBroadcast(intent1);
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(getResources().getString(R.string.log_app), "TimerService onUnbind");
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Log.d(getResources().getString(R.string.log_app), "TimerService onTaskRemoved");
+
+        SharedPreferences sharedPref = MyApplication.getPreferences();
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putLong(getString(R.string.saved_start_time_timer), timer.getStartTime());
+        editor.putBoolean(getString(R.string.saved_is_timer_running), isTimerRunning());
+        editor.commit();
+
+        if (!isTimerRunning()) {
+            stopSelf();
+        }
+
+        super.onTaskRemoved(rootIntent);
+    }
+
+    private boolean isTimeout = false;
+
+    public boolean isTimeout() {
+        return isTimeout;
+    }
+
+    public void updateNotification() {
+
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        builder.setContentText(getFormattedLeftTime());
+
+        if (getDifference() < 1000) {
+            isTimeout = true;
+            if (!isFinalNotification) {
+                isFinalNotification = true;
+                builder.setTicker(getResources().getString(R.string.timeout));
+                builder.setAutoCancel(true);
+                Notification notification = builder.build();
+                notification.defaults = Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE;
+                notificationManager.notify(NOTIFY_ID, notification);
+                pause();
+            }
+        } else {
+            notificationManager.notify(NOTIFY_ID, builder.build());
+        }
+    }
+
     public long getElapsedTime() {
         return timer.getElapsedTime();
     }
@@ -143,7 +164,7 @@ public class TimerService extends Service {
     }
 
     private long getDifference() {
-        return startValueTimer - getElapsedTime();
+        return START_VALUE_TIMER - getElapsedTime();
     }
 
     public boolean isTimerRunning() {

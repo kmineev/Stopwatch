@@ -5,6 +5,10 @@ package com.spaceotechnologies.training.stopwatch.Base;
  */
 public class Timer {
 
+    public long getStartTime() {
+        return startTime;
+    }
+
     public interface GetTime {
         public long now();
     }
@@ -17,7 +21,7 @@ public class Timer {
     };
 
     public enum State {
-        PAUSED, RUNNING
+        PAUSED, RUNNING, BINDED
     }
 
     private GetTime time;
@@ -31,8 +35,13 @@ public class Timer {
         reset();
     }
 
+    public Timer(long startTime) {
+        time = systemTime;
+        reset(startTime);
+    }
+
     public Timer(GetTime time) {
-        time = time;
+        this.time = time;
         reset();
     }
 
@@ -41,6 +50,10 @@ public class Timer {
             pauseOffset = getElapsedTime();
             stopTime = 0;
             startTime = time.now();
+            state = State.RUNNING;
+        } else if (state == State.BINDED) {
+            pauseOffset = 0;
+            stopTime = 0;
             state = State.RUNNING;
         }
     }
@@ -55,6 +68,13 @@ public class Timer {
     public void reset() {
         state = State.PAUSED;
         startTime = 0;
+        stopTime = 0;
+        pauseOffset = 0;
+    }
+
+    public void reset(long startTime) {
+        state = State.BINDED;
+        this.startTime = startTime;
         stopTime = 0;
         pauseOffset = 0;
     }

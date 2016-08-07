@@ -29,6 +29,13 @@
 
     <string name="android_switcher">android:switcher:</string>
 
+    <string name="saved_start_time_stopwatch">savedStartTimeStopwatch</string>
+    <string name="saved_is_stopvatch_running">savedIsStopvatchRuning</string>
+    <string name="saved_start_time_timer">savedStartTimeTimer</string>
+    <string name="saved_is_timer_running">savedIsStopvatchTimer</string>
+
+    <string name="broadcast_action">serviceBackBroadcast</string>
+
     <string-array name="string_array_settings">
         <item>Background Color</item>
         <item>Font Color</item>
@@ -51,10 +58,9 @@
         <item>Timer</item>
     </string-array>
 
-
-
-
-    <integer name="NOTIFY_ID">102</integer>
+    <string name="log_app">LOG</string>
+    <string name="saved_is_stopwatch_running">savedIsStopwatchRunning</string>
+    <string name="current_page">currentPage</string>
 
 
 </resources>
