@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.spaceotechnologies.training.stopwatch.R;
+
 /**
  * Created by Kostez on 01.08.2016.
  */
@@ -15,7 +17,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         MyApplication.context = getApplicationContext();
-        preferences = getSharedPreferences( getPackageName() + "_preferences", MODE_PRIVATE);
+        preferences = getSharedPreferences( getPackageName() + getString(R.string.preferences), MODE_PRIVATE);
     }
 
     public static Context getAppContext() {

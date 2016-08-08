@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.spaceotechnologies.training.stopwatch.Adapters.TextPagerAdapter;
+import com.spaceotechnologies.training.stopwatch.Applications.MyApplication;
 import com.spaceotechnologies.training.stopwatch.Fragments.CounterFragment;
 import com.spaceotechnologies.training.stopwatch.Fragments.TimerFragment;
 import com.spaceotechnologies.training.stopwatch.R;
@@ -34,30 +35,28 @@ import com.spaceotechnologies.training.stopwatch.Services.TimerService;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Toolbar toolbar;
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-
     public static final int STOPWATCH_NUMBER = 0;
     public static final int TIMER_NUMBER = 1;
+
     private static final int REQUEST_CODE = 1;
+    private static final long FREQUENCY = 100;
+    private static final int TICK_STOPWATCH = 2;
+    private static final int TICK_TIMER = 5;
+    private static final int ANIMATION_DURATION = 5000;
 
     private String color = "";
     private int newBackgroundColor = -1;
     private int oldBackgroundColorARGB = -1;
-
-    private TextPagerAdapter adapter;
-    private final long FREQUENCY = 100;
-    private final int TICK_STOPWATCH = 2;
-    private final int TICK_TIMER = 5;
-    private static final int ANIMATION_DURATION = 5000;
-
-    private TimerService timerService;
-    private StopwatchService stopwatchService;
-    private BroadcastReceiver broadcastReceiver;
     private int currentPage = 0;
 
     private Menu menu;
+    private Toolbar toolbar;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private TextPagerAdapter adapter;
+    private TimerService timerService;
+    private StopwatchService stopwatchService;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,9 +101,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
-
         Log.d(getResources().getString(R.string.log_app), "MainActivity setupViewPager");
-
         adapter = new TextPagerAdapter(getSupportFragmentManager(), MainActivity.this);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(currentPage);
@@ -112,8 +109,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
             @Override
             public void onPageSelected(int position) {
@@ -288,7 +284,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         Log.d(getResources().getString(R.string.log_app), "MainActivity onActivityResult");
 
         if (data == null) {
@@ -324,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
             newBackgroundColor = R.color.Black;
         }
 
-        newBackgroundColor = getResources().getColor(newBackgroundColor);
+        newBackgroundColor = ContextCompat.getColor(MyApplication.getAppContext(), newBackgroundColor);
 
         return newBackgroundColor;
     }

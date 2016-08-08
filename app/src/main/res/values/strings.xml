@@ -61,6 +61,7 @@
     <string name="log_app">LOG</string>
     <string name="saved_is_stopwatch_running">savedIsStopwatchRunning</string>
     <string name="current_page">currentPage</string>
+    <string name="preferences">preferences</string>
 
 
 </resources>
