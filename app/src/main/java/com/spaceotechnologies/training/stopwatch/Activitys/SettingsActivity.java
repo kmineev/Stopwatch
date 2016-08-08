@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch.Activitys;
+package com.spaceotechnologies.training.stopwatch.activitys;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.spaceotechnologies.training.stopwatch.Fragments.SettingsFragment;
+import com.spaceotechnologies.training.stopwatch.fragments.SettingsFragment;
 import com.spaceotechnologies.training.stopwatch.R;
 
 public class SettingsActivity extends AppCompatActivity {

@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch.Activitys;
+package com.spaceotechnologies.training.stopwatch.activitys;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
@@ -25,13 +25,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.spaceotechnologies.training.stopwatch.Adapters.TextPagerAdapter;
-import com.spaceotechnologies.training.stopwatch.Applications.MyApplication;
-import com.spaceotechnologies.training.stopwatch.Fragments.CounterFragment;
-import com.spaceotechnologies.training.stopwatch.Fragments.TimerFragment;
+import com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter;
+import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
+import com.spaceotechnologies.training.stopwatch.fragments.CounterFragment;
+import com.spaceotechnologies.training.stopwatch.fragments.TimerFragment;
 import com.spaceotechnologies.training.stopwatch.R;
-import com.spaceotechnologies.training.stopwatch.Services.StopwatchService;
-import com.spaceotechnologies.training.stopwatch.Services.TimerService;
+import com.spaceotechnologies.training.stopwatch.services.StopwatchService;
+import com.spaceotechnologies.training.stopwatch.services.TimerService;
 
 public class MainActivity extends AppCompatActivity {
 

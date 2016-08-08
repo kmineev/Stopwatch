@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch.Services;
+package com.spaceotechnologies.training.stopwatch.services;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -10,11 +10,12 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.spaceotechnologies.training.stopwatch.Applications.MyApplication;
-import com.spaceotechnologies.training.stopwatch.Base.Timer;
+import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
+import com.spaceotechnologies.training.stopwatch.base.Timer;
 import com.spaceotechnologies.training.stopwatch.R;
 
-import static com.spaceotechnologies.training.stopwatch.Activitys.MainActivity.TIMER_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.TIMER_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.applications.MyApplication.getPreferences;
 
 public class TimerService extends BaseService {
 
@@ -33,10 +34,8 @@ public class TimerService extends BaseService {
         super.onCreate();
         Log.d(getResources().getString(R.string.log_app), "TimerService onCreate");
 
-        sharedPref = MyApplication.getPreferences();
-
-        if (sharedPref.getBoolean(getString(R.string.saved_is_timer_running), false)) {
-            timer = new Timer(sharedPref.getLong(getString(R.string.saved_start_time_timer), DEFAULT_TIME));
+        if (getPreferences().getBoolean(getString(R.string.saved_is_timer_running), false)) {
+            timer = new Timer(getPreferences().getLong(getString(R.string.saved_start_time_timer), DEFAULT_TIME));
             startTimerService();
         } else {
             timer = new Timer();

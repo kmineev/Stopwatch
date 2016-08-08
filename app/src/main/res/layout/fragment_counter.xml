@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <com.spaceotechnologies.training.stopwatch.Views.AutoResizeTextView
+    <com.spaceotechnologies.training.stopwatch.views.AutoResizeTextView
         android:id="@+id/counter_fr_counter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

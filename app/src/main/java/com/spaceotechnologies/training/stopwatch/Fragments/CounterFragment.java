@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch.Fragments;
+package com.spaceotechnologies.training.stopwatch.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,9 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.spaceotechnologies.training.stopwatch.Applications.MyApplication;
+import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 import com.spaceotechnologies.training.stopwatch.R;
-import com.spaceotechnologies.training.stopwatch.Views.AutoResizeTextView;
+import com.spaceotechnologies.training.stopwatch.views.AutoResizeTextView;
 
 /**
  * Created by Kostez on 13.07.2016.

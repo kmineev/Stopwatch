@@ -7,9 +7,9 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/MyMaterialTheme"
-        android:name="com.spaceotechnologies.training.stopwatch.Applications.MyApplication" >
+        android:name="com.spaceotechnologies.training.stopwatch.applications.MyApplication" >
         <activity
-            android:name=".Activitys.MainActivity"
+            android:name=".activitys.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTop">
@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activitys.SettingsActivity"
+            android:name=".activitys.SettingsActivity"
             android:label="@string/action_settings"
             android:noHistory="false"
             android:theme="@style/MyMaterialTheme">
@@ -30,11 +30,11 @@
         </activity>
 
         <service
-            android:name=".Services.StopwatchService"
+            android:name=".services.StopwatchService"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".Services.TimerService"
+            android:name=".services.TimerService"
             android:enabled="true"
             android:exported="true" />
     </application>

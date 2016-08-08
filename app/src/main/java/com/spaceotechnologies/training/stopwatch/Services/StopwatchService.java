@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch.Services;
+package com.spaceotechnologies.training.stopwatch.services;
 
 import android.app.NotificationManager;
 import android.content.Context;
@@ -9,11 +9,12 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.spaceotechnologies.training.stopwatch.Applications.MyApplication;
-import com.spaceotechnologies.training.stopwatch.Base.Stopwatch;
 import com.spaceotechnologies.training.stopwatch.R;
+import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
+import com.spaceotechnologies.training.stopwatch.base.Stopwatch;
 
-import static com.spaceotechnologies.training.stopwatch.Activitys.MainActivity.STOPWATCH_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.STOPWATCH_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.applications.MyApplication.getPreferences;
 
 /**
  * Created by Kostez on 21.07.2016.
@@ -33,17 +34,15 @@ public class StopwatchService extends BaseService {
         super.onCreate();
         Log.d(getResources().getString(R.string.log_app), "StopwatchService onCreate");
 
-        sharedPref = MyApplication.getPreferences();
-
-        if (sharedPref.getBoolean(getString(R.string.saved_is_stopwatch_running), false)) {
-            stopwatch = new Stopwatch(sharedPref.getLong(getString(R.string.saved_start_time_stopwatch), DEFAULT_TIME));
+        if (getPreferences().getBoolean(getString(R.string.saved_is_stopwatch_running), false)) {
+            stopwatch = new Stopwatch(getPreferences().getLong(getString(R.string.saved_start_time_stopwatch), DEFAULT_TIME));
             startStopwatchService();
         } else {
             stopwatch = new Stopwatch();
         }
 
-        if(!sharedPref.getBoolean(getString(R.string.saved_is_stopwatch_running), false)
-                && (!sharedPref.getBoolean(getString(R.string.saved_is_timer_running), false))) {
+        if(!getPreferences().getBoolean(getString(R.string.saved_is_stopwatch_running), false)
+                && (!getPreferences().getBoolean(getString(R.string.saved_is_timer_running), false))) {
             startStopwatchService();
         }
         binder = new LocalBinder();
@@ -143,8 +142,7 @@ public class StopwatchService extends BaseService {
     public void onTaskRemoved(Intent rootIntent) {
         Log.d(getResources().getString(R.string.log_app), "StopwatchService onTaskRemoved");
 
-        SharedPreferences sharedPref = MyApplication.getPreferences();
-        SharedPreferences.Editor editor = sharedPref.edit();
+        SharedPreferences.Editor editor = getPreferences().edit();
         editor.putLong(getString(R.string.saved_start_time_stopwatch), stopwatch.getStartTime());
         editor.putBoolean(getString(R.string.saved_is_stopwatch_running), isStopwatchRunning());
         editor.commit();

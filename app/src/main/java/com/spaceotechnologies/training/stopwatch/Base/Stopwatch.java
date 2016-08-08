@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch.Base;
+package com.spaceotechnologies.training.stopwatch.base;
 
 import java.util.ArrayList;
 import java.util.List;

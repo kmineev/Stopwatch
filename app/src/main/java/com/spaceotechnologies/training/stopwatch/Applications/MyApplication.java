@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch.Applications;
+package com.spaceotechnologies.training.stopwatch.applications;
 
 import android.app.Application;
 import android.content.Context;

@@ -1,10 +1,9 @@
-package com.spaceotechnologies.training.stopwatch.Services;
+package com.spaceotechnologies.training.stopwatch.services;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Handler;
@@ -13,8 +12,8 @@ import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.spaceotechnologies.training.stopwatch.Activitys.MainActivity;
 import com.spaceotechnologies.training.stopwatch.R;
+import com.spaceotechnologies.training.stopwatch.activitys.MainActivity;
 
 /**
  * Created by Kostez on 03.08.2016.
@@ -24,7 +23,6 @@ public abstract class BaseService extends Service {
     protected NotificationManager notificationManager;
     protected Resources res;
     protected NotificationCompat.Builder builder;
-    protected SharedPreferences sharedPref;
 
     protected static final int NOTIFY_ID = 102;
     private final long FREQUENCY = 100;
