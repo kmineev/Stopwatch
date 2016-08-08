@@ -1,16 +1,16 @@
-package com.spaceotechnologies.training.stopwatch.Adapters;
+package com.spaceotechnologies.training.stopwatch.adapters;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.spaceotechnologies.training.stopwatch.Fragments.CounterFragment;
-import com.spaceotechnologies.training.stopwatch.Fragments.TimerFragment;
+import com.spaceotechnologies.training.stopwatch.fragments.CounterFragment;
+import com.spaceotechnologies.training.stopwatch.fragments.TimerFragment;
 import com.spaceotechnologies.training.stopwatch.R;
 
-import static com.spaceotechnologies.training.stopwatch.Activitys.MainActivity.STOPWATCH_NUMBER;
-import static com.spaceotechnologies.training.stopwatch.Activitys.MainActivity.TIMER_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.STOPWATCH_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.TIMER_NUMBER;
 
 /**
  * Created by Kostez on 01.08.2016.

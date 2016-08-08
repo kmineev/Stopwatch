@@ -1,4 +1,4 @@
-package com.spaceotechnologies.training.stopwatch.Fragments;
+package com.spaceotechnologies.training.stopwatch.fragments;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
