@@ -3,11 +3,10 @@
     <color name="colorPrimary">#03A9F4</color>
     <color name="colorPrimaryDark">#0288D1</color>
     <color name="textColorPrimary">#FFFFFF</color>
-    <color name="windowBackground">#FFFFFF</color>
+    <color name="windowBackground">#FF00FF</color>
     <color name="navigationBarColor">#000000</color>
-    <color name="colorAccent">#CDDC39</color>
-
-
+    <color name="colorAccent">#FFFF00</color>
+    <color name="colorPrimaryLight">#2203A9F4</color>
 
     <color name="colorRed">#FF0000</color>
     <color name="White">#FFFFFF</color>
@@ -134,7 +133,7 @@
     <color name="LightSeaGreen">#20B2AA</color>
     <color name="DodgerBlue">#1E90FF</color>
     <color name="MidnightBlue">#191970</color>
-    <color name="Aqua">#00FFFF</color>
+    <color name="Aqua">#00ffff</color>
     <color name="Cyan">#00FFFF</color>
     <color name="SpringGreen">#00FF7F</color>
     <color name="Lime">#00FF00</color>
