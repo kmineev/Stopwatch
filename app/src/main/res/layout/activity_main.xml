@@ -27,4 +27,6 @@
 
     <include layout="@layout/content_main" />
 
+    <include layout="@layout/button" />
+
 </android.support.design.widget.CoordinatorLayout>
