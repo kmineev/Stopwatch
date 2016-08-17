@@ -18,20 +18,42 @@
         android:layout_height="match_parent"
         android:layout_margin="@dimen/activity_horizontal_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_weight="0"/>
+        android:layout_weight="100" />
 
-    <ListView
+    <fragment
+        android:id="@+id/cutoff_time_fragment"
+        android:name="com.spaceotechnologies.training.stopwatch.fragments.CuttoffTimeFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/timeListView"
-        android:layout_gravity="bottom"
-        android:background="@color/colorPrimaryLight"
-        android:layout_weight="100"
-        android:dividerHeight="2dp"
-        android:transcriptMode="alwaysScroll"
-        android:stackFromBottom="true"
+        android:layout_height="0dp"
+        android:layout_weight="300"
+        tools:layout="@layout/fragment_cutoff_time">
+    </fragment>
 
-        android:animateLayoutChanges="true"
-    />
+    <!--
+
+        <FrameLayout
+            android:id="@+id/cutoff_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="100"
+            >
+        </FrameLayout>
+    -->
+    <!--
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/timeListView"
+            android:layout_gravity="bottom"
+            android:background="@color/colorPrimaryLight"
+            android:layout_weight="100"
+            android:dividerHeight="2dp"
+            android:transcriptMode="alwaysScroll"
+            android:stackFromBottom="true"
+
+            android:animateLayoutChanges="true"
+        />
+
+    -->
 
 </LinearLayout>
