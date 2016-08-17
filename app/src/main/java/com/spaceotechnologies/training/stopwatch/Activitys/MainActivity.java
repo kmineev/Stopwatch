@@ -23,22 +23,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter;
 import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 import com.spaceotechnologies.training.stopwatch.fragments.CounterFragment;
+import com.spaceotechnologies.training.stopwatch.fragments.CuttoffTimeFragment;
 import com.spaceotechnologies.training.stopwatch.fragments.TimerFragment;
 import com.spaceotechnologies.training.stopwatch.services.StopwatchService;
 import com.spaceotechnologies.training.stopwatch.services.TimerService;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,15 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private TimerService timerService;
     private StopwatchService stopwatchService;
     private BroadcastReceiver broadcastReceiver;
-
-    private boolean isAddButtonStopwatchClicked = false;
-    private boolean isAddButtonTimerClicked = false;
-    private ImageButton buttonAdd;
-    private ArrayList<String> listItemsStopwatch = new ArrayList<String>();
-    private ArrayList<String> listItemsTimer = new ArrayList<String>();
-    private ArrayAdapter<String> stringArrayStopwatchAdapter;
-    private ArrayAdapter<String> stringArrayTimerAdapter;
-    private ListView listView;
+    private CuttoffTimeFragment cuttoffTimeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,18 +95,7 @@ public class MainActivity extends AppCompatActivity {
         stopwatchHandler.sendMessageDelayed(Message.obtain(stopwatchHandler, TICK_STOPWATCH), FREQUENCY);
         timerHandler.sendMessageDelayed(Message.obtain(timerHandler, TICK_TIMER), FREQUENCY);
 
-        buttonAdd = (ImageButton) findViewById(R.id.button_add);
-
-        listView = (ListView) findViewById(R.id.timeListView);
-
-        stringArrayStopwatchAdapter = new ArrayAdapter<String>(this,
-                R.layout.lv_textview, listItemsStopwatch);
-
-        stringArrayTimerAdapter = new ArrayAdapter<String>(this,
-                R.layout.lv_textview, listItemsTimer);
-
-        listView.setAdapter(stringArrayStopwatchAdapter);
-
+        cuttoffTimeFragment = (CuttoffTimeFragment) getFragmentManager().findFragmentById(R.id.cutoff_time_fragment);
     }
 
     @Override
@@ -154,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
                                 showStartButtons();
                             }
                         }
-
                         break;
                     case TIMER_NUMBER:
                         if (timerService != null) {
@@ -167,53 +141,13 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
                 }
-
-                showCorrectButtons();
-
+                cuttoffTimeFragment.showCorrectButtons();
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
             }
         });
-    }
-
-    private void showAddListButton() {
-        buttonAdd.setImageDrawable(getResources().getDrawable(R.drawable.button_create_list));
-    }
-
-    private void showAddTimeButton() {
-        buttonAdd.setImageDrawable(getResources().getDrawable(R.drawable.button_add));
-    }
-
-    private void showCorrectButtons() {
-
-        switch (viewPager.getCurrentItem()) {
-            case STOPWATCH_NUMBER:
-                if (!isAddButtonStopwatchClicked) {
-                    showAddListButton();
-                    setInvisibleListView();
-                } else {
-                    showAddTimeButton();
-                    stringArrayStopwatchAdapter = new ArrayAdapter<String>(this, R.layout.lv_textview, listItemsStopwatch);
-                    listView.setAdapter(stringArrayStopwatchAdapter);
-                    setVisibleListView();
-                }
-                break;
-            case TIMER_NUMBER:
-                if (!isAddButtonTimerClicked) {
-                    showAddListButton();
-                    setInvisibleListView();
-                } else {
-                    showAddTimeButton();
-                    stringArrayTimerAdapter = new ArrayAdapter<String>(this, R.layout.lv_textview, listItemsTimer);
-                    listView.setAdapter(stringArrayTimerAdapter);
-                    setVisibleListView();
-                }
-                break;
-        }
-        LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(this, R.anim.list_layout_controller);
-        listView.setLayoutAnimation(controller);
     }
 
     protected Fragment findFragmentByPosition(int position) {
@@ -230,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(getResources().getString(R.string.log_app), "MainActivity onServiceConnected Stopwatch");
             stopwatchService = ((StopwatchService.LocalBinder) service).getService();
+            cuttoffTimeFragment.setStopwatchService(stopwatchService);
         }
 
         @Override
@@ -276,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(getResources().getString(R.string.log_app), "MainActivity onServiceConnected Timer");
             timerService = ((TimerService.LocalBinder) service).getService();
+            cuttoffTimeFragment.setTimerService(timerService);
         }
 
         @Override
@@ -443,33 +379,5 @@ public class MainActivity extends AppCompatActivity {
     private void showStartButtons() {
         MenuItem menuItem = menu.getItem(0).setTitle(R.string.action_start);
         menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_play_arrow_24dp));
-    }
-
-    public void onButtonAddClick(View view) {
-
-        switch (viewPager.getCurrentItem()) {
-            case STOPWATCH_NUMBER:
-                isAddButtonStopwatchClicked = true;
-                listItemsStopwatch.add(stopwatchService.getFormattedElapsedTime());
-                break;
-            case TIMER_NUMBER:
-                isAddButtonTimerClicked = true;
-                listItemsTimer.add(timerService.getFormattedLeftTime());
-                break;
-        }
-
-        showCorrectButtons();
-    }
-
-    private void setVisibleListView() {
-        viewPager.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewPager.LayoutParams.MATCH_PARENT,
-                ViewPager.LayoutParams.MATCH_PARENT, 30f));
-    }
-
-    private void setInvisibleListView() {
-        viewPager.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewPager.LayoutParams.MATCH_PARENT,
-                ViewPager.LayoutParams.MATCH_PARENT, 0f));
     }
 }
