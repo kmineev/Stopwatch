@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         cuttoffTimeFragment = (CuttoffTimeFragment) getFragmentManager().findFragmentById(R.id.cutoff_time_fragment);
 
-//        this.deleteDatabase("timedatabase.db");
+//        this.deleteDatabase(getResources().getString(R.string.database_name));
 
         mDatabaseHelper = new DatabaseHelper(this);
         mSqLiteDatabase = mDatabaseHelper.getWritableDatabase();
@@ -192,11 +192,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected Fragment findFragmentByPosition(int page, int position) {
-        int pagerId = this.viewPager.getId();
-        return getFragmentManager().findFragmentByTag(getFragmentTag(pagerId, page, position));
+//        int pagerId = this.viewPager.getId();
+        return getFragmentManager().findFragmentByTag(getFragmentTag(page, position));
     }
 
-    private String getFragmentTag(int viewPagerId, int page, int fragmentPosition) {
+    private String getFragmentTag(int page, int fragmentPosition) {
 //        return getResources().getString(R.string.android_switcher) + viewPagerId + ':' + fragmentPosition;
 //        return getResources().getString(R.string.android_switcher_fragment) + viewPagerId + ':' + fragmentPosition;
         return getResources().getString(R.string.android_switcher_fragment) + page + ':' + fragmentPosition;
@@ -468,7 +468,6 @@ public class MainActivity extends AppCompatActivity {
         switch (viewPager.getCurrentItem()) {
 
             case STOPWATCH_NUMBER:
-
                 if (!isStopwatchTimeListVisible) {
                     getFragmentManager()
                             .beginTransaction()

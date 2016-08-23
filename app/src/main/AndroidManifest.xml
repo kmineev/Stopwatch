@@ -23,7 +23,7 @@
 
         <activity
             android:name=".activitys.ColorsActivity"
-            android:label="@string/action_settings"
+            android:label="@string/action_color_selection"
             android:noHistory="false"
             android:theme="@style/MyMaterialTheme">
             <intent-filter>
