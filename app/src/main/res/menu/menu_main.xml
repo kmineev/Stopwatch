@@ -17,7 +17,7 @@
         android:orderInCategory="25"
         android:title="@string/action_reset"
         app:showAsAction="always"
-        android:icon="@android:drawable/stat_notify_sync_noanim" />
+        android:icon="@drawable/ic_autorenew_24dp" />
     <item
         android:id="@+id/settingsButton"
         android:onClick="onClickSettings"
@@ -25,4 +25,18 @@
         android:title="@string/action_settings"
         app:showAsAction="always"
         android:icon="@drawable/ic_settings_24dp" />
-</menu>
+    <item
+        android:id="@+id/saveTimeButton"
+        android:onClick="onClickSaveTime"
+        android:orderInCategory="100"
+        android:title="@string/action_save"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_save_24dp" />
+    <item
+        android:id="@+id/showSavedTimeButton"
+        android:onClick="onClickShowSavedTime"
+        android:orderInCategory="150"
+        android:title="@string/action_show_saved_time"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_assignment_24dp" />
+    </menu>

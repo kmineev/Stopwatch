@@ -2,18 +2,22 @@ package com.spaceotechnologies.training.stopwatch.activitys;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.BaseColumns;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -28,8 +32,10 @@ import android.widget.LinearLayout;
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter;
 import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
+import com.spaceotechnologies.training.stopwatch.data.DatabaseHelper;
 import com.spaceotechnologies.training.stopwatch.fragments.CounterFragment;
 import com.spaceotechnologies.training.stopwatch.fragments.CuttoffTimeFragment;
+import com.spaceotechnologies.training.stopwatch.fragments.TimeListFragment;
 import com.spaceotechnologies.training.stopwatch.fragments.TimerFragment;
 import com.spaceotechnologies.training.stopwatch.services.StopwatchService;
 import com.spaceotechnologies.training.stopwatch.services.TimerService;
@@ -39,16 +45,25 @@ public class MainActivity extends AppCompatActivity {
     public static final int STOPWATCH_NUMBER = 0;
     public static final int TIMER_NUMBER = 1;
 
+    public static final int STOPWATCH_FRAGMENT_POSITION = 0;
+    public static final int TIMER_FRAGMENT_POSITION = 0;
+
+    public static final int STOPWATCH_TIME_LIST_FRAGMENT_POSITION = 1;
+    public static final int TIMER_TIME_LIST_FRAGMENT_POSITION = 1;
+
     private static final int REQUEST_CODE = 1;
     private static final long FREQUENCY = 100;
     private static final int TICK_STOPWATCH = 2;
     private static final int TICK_TIMER = 5;
     private static final int ANIMATION_DURATION = 5000;
 
-    private String color = "";
+    private String color;
     private int newBackgroundColor = -1;
     private int oldBackgroundColorARGB = -1;
     private int currentPage = 0;
+
+    private boolean isStopwatchTimeListVisible = false;
+    private boolean isTimerTimeListVisible = false;
 
     private Menu menu;
     private Toolbar toolbar;
@@ -59,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
     private StopwatchService stopwatchService;
     private BroadcastReceiver broadcastReceiver;
     private CuttoffTimeFragment cuttoffTimeFragment;
+
+    private DatabaseHelper mDatabaseHelper;
+    private SQLiteDatabase mSqLiteDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +114,30 @@ public class MainActivity extends AppCompatActivity {
         timerHandler.sendMessageDelayed(Message.obtain(timerHandler, TICK_TIMER), FREQUENCY);
 
         cuttoffTimeFragment = (CuttoffTimeFragment) getFragmentManager().findFragmentById(R.id.cutoff_time_fragment);
+
+//        this.deleteDatabase("timedatabase.db");
+
+        mDatabaseHelper = new DatabaseHelper(this);
+        mSqLiteDatabase = mDatabaseHelper.getWritableDatabase();
+
+        Cursor cursor = mSqLiteDatabase.query(getResources().getString(R.string.colors_table), new String[]{BaseColumns._ID, getResources().getString(R.string.color_name_column), getResources().getString(R.string.color_value_column)},
+                null, null,
+                null, null, null);
+
+        if (cursor.getCount() == 0) {
+            color = getResources().getString(R.string.White);
+        } else {
+            while (cursor.moveToNext()) {
+                if (cursor.getString(cursor.getColumnIndex(getResources().getString(R.string.color_name_column))).equals(getResources().getString(R.string.background_color))) {
+                    color = cursor.getString(cursor.getColumnIndex(getResources().getString(R.string.color_value_column)));
+                }
+            }
+        }
+
+        cursor.close();
+
+        final LinearLayout counterlL = (LinearLayout) findViewById(R.id.counterBackground);
+        counterlL.setBackgroundColor(getColor(color));
     }
 
     @Override
@@ -106,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         Log.d(getResources().getString(R.string.log_app), "MainActivity setupViewPager");
-        adapter = new TextPagerAdapter(getSupportFragmentManager(), MainActivity.this);
+        adapter = new TextPagerAdapter(getFragmentManager(), MainActivity.this);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(currentPage);
 
@@ -138,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
                                 showStartButtons();
                             }
                         }
-
                         break;
                 }
                 cuttoffTimeFragment.showCorrectButtons();
@@ -150,13 +191,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    protected Fragment findFragmentByPosition(int position) {
+    protected Fragment findFragmentByPosition(int page, int position) {
         int pagerId = this.viewPager.getId();
-        return getSupportFragmentManager().findFragmentByTag(getFragmentTag(pagerId, position));
+        return getFragmentManager().findFragmentByTag(getFragmentTag(pagerId, page, position));
     }
 
-    private String getFragmentTag(int viewPagerId, int fragmentPosition) {
-        return getResources().getString(R.string.android_switcher) + viewPagerId + ':' + fragmentPosition;
+    private String getFragmentTag(int viewPagerId, int page, int fragmentPosition) {
+//        return getResources().getString(R.string.android_switcher) + viewPagerId + ':' + fragmentPosition;
+//        return getResources().getString(R.string.android_switcher_fragment) + viewPagerId + ':' + fragmentPosition;
+        return getResources().getString(R.string.android_switcher_fragment) + page + ':' + fragmentPosition;
     }
 
     private ServiceConnection stopwatchServiceConnection = new ServiceConnection() {
@@ -188,8 +231,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void updateElapsedTime() {
-        if (stopwatchService != null && findFragmentByPosition(STOPWATCH_NUMBER) != null) {
-            ((CounterFragment) findFragmentByPosition(STOPWATCH_NUMBER)).setText(stopwatchService.getFormattedElapsedTime());
+        if (stopwatchService != null && findFragmentByPosition(STOPWATCH_NUMBER, STOPWATCH_FRAGMENT_POSITION) != null) {
+            ((CounterFragment) findFragmentByPosition(STOPWATCH_NUMBER, STOPWATCH_FRAGMENT_POSITION)).setText(stopwatchService.getFormattedElapsedTime());
         }
     }
 
@@ -222,8 +265,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void updateLeftTime() {
-        if (timerService != null && findFragmentByPosition(TIMER_NUMBER) != null) {
-            ((TimerFragment) findFragmentByPosition(TIMER_NUMBER)).setText(timerService.getFormattedLeftTime());
+        if (timerService != null && findFragmentByPosition(TIMER_NUMBER, TIMER_FRAGMENT_POSITION) != null) {
+            ((TimerFragment) findFragmentByPosition(TIMER_NUMBER, TIMER_FRAGMENT_POSITION)).setText(timerService.getFormattedLeftTime());
             if (timerService.isTimeout() && viewPager.getCurrentItem() == TIMER_NUMBER) {
                 showStartButtons();
             }
@@ -233,6 +276,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d(getResources().getString(R.string.log_app), "MainActivity onDestroy");
+
+        ContentValues values = new ContentValues();
+
+        values.put(getResources().getString(R.string.color_name_column), getResources().getString(R.string.background_color));
+        values.put(getResources().getString(R.string.color_value_column), color);
+        mSqLiteDatabase.update(getResources().getString(R.string.colors_table), values, null, null);
+
+        Cursor cursor = mSqLiteDatabase.query(getResources().getString(R.string.colors_table), new String[]{BaseColumns._ID, getResources().getString(R.string.color_name_column), getResources().getString(R.string.color_value_column)},
+                null, null,
+                null, null, null);
+
+        if (cursor.getCount() == 0) {
+            mSqLiteDatabase.insert(getResources().getString(R.string.colors_table), null, values);
+        } else {
+            while (cursor.moveToNext()) {
+                long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
+                String name = cursor.getString(cursor.getColumnIndex(getResources().getString(R.string.color_name_column)));
+                String value = cursor.getString(cursor.getColumnIndex(getResources().getString(R.string.color_value_column)));
+            }
+        }
+
+        cursor.close();
+
         stopwatchHandler.removeMessages(TICK_STOPWATCH);
         unbindStopwatchService();
         unbindTimerService();
@@ -379,5 +445,88 @@ public class MainActivity extends AppCompatActivity {
     private void showStartButtons() {
         MenuItem menuItem = menu.getItem(0).setTitle(R.string.action_start);
         menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_play_arrow_24dp));
+    }
+
+    public void onClickSaveTime(MenuItem item) {
+
+        ContentValues values = new ContentValues();
+
+        switch (viewPager.getCurrentItem()) {
+            case STOPWATCH_NUMBER:
+                values.put(getResources().getString(R.string.time_name_column), stopwatchService.getFormattedElapsedTime());
+                mSqLiteDatabase.insert(getResources().getString(R.string.stopwatch_time_table), null, values);
+                break;
+            case TIMER_NUMBER:
+                values.put(getResources().getString(R.string.time_name_column), timerService.getFormattedLeftTime());
+                mSqLiteDatabase.insert(getResources().getString(R.string.timer_time_table), null, values);
+                break;
+        }
+    }
+
+    public void onClickShowSavedTime(MenuItem item) {
+
+        switch (viewPager.getCurrentItem()) {
+
+            case STOPWATCH_NUMBER:
+
+                if (!isStopwatchTimeListVisible) {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(
+                                    R.animator.slide_enter_down,
+                                    R.animator.slide_exit_up,
+                                    R.animator.slide_enter_down,
+                                    R.animator.slide_exit_up)
+                            .replace(R.id.root_frame_stopwatch,
+                                    new TimeListFragment(getResources().getString(R.string.stopwatch_time_table)),
+                                    getResources().getString(R.string.android_switcher_fragment) + STOPWATCH_NUMBER + ':' + STOPWATCH_TIME_LIST_FRAGMENT_POSITION)
+                            .commit();
+                    isStopwatchTimeListVisible = true;
+                } else {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(
+                                    R.animator.slide_enter_down,
+                                    R.animator.slide_exit_up,
+                                    R.animator.slide_enter_down,
+                                    R.animator.slide_exit_up)
+                            .replace(R.id.root_frame_stopwatch,
+                                    CounterFragment.newInstance(STOPWATCH_NUMBER, MyApplication.getAppContext().getResources().getStringArray(R.array.titles_tabs)[STOPWATCH_NUMBER]),
+                                    getResources().getString(R.string.android_switcher_fragment) + STOPWATCH_NUMBER + ':' + STOPWATCH_FRAGMENT_POSITION)
+                            .commit();
+                    isStopwatchTimeListVisible = false;
+                }
+                break;
+
+            case TIMER_NUMBER:
+                if (!isTimerTimeListVisible) {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(
+                                    R.animator.slide_enter_down,
+                                    R.animator.slide_exit_up,
+                                    R.animator.slide_enter_down,
+                                    R.animator.slide_exit_up)
+                            .replace(R.id.root_frame_timer,
+                                    new TimeListFragment(getResources().getString(R.string.timer_time_table)),
+                                    getResources().getString(R.string.android_switcher_fragment) + TIMER_NUMBER + ':' + TIMER_TIME_LIST_FRAGMENT_POSITION)
+                            .commit();
+                    isTimerTimeListVisible = true;
+                } else {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(
+                                    R.animator.slide_enter_down,
+                                    R.animator.slide_exit_up,
+                                    R.animator.slide_enter_down,
+                                    R.animator.slide_exit_up)
+                            .replace(R.id.root_frame_timer,
+                                    TimerFragment.newInstance(TIMER_NUMBER, MyApplication.getAppContext().getResources().getStringArray(R.array.titles_tabs)[TIMER_NUMBER]),
+                                    getResources().getString(R.string.android_switcher_fragment) + TIMER_NUMBER + ':' + TIMER_FRAGMENT_POSITION)
+                            .commit();
+                    isTimerTimeListVisible = false;
+                }
+                break;
+        }
     }
 }
