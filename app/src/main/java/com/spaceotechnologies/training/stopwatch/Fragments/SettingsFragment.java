@@ -1,54 +1,45 @@
 package com.spaceotechnologies.training.stopwatch.fragments;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.app.ListFragment;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
 
 import com.spaceotechnologies.training.stopwatch.R;
+import com.spaceotechnologies.training.stopwatch.activitys.ColorsActivity;
+import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 
 /**
- * Created by Kostez on 13.07.2016.
+ * Created by Kostez on 23.08.2016.
  */
-public class SettingsFragment extends ListFragment {
+public class SettingsFragment extends PreferenceFragment {
 
-
-    private final int BACKGROUND_COLOR_NUMBER = 0;
-    private final int FOREGROUND_COLOR_NUMBER = 1;
+    CheckBoxPreference saveCutoffCheckBoxPreference;
+    Preference colorsSelectionPreference;
+    private static final int REQUEST_CODE = 1;
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.pref);
 
-        ListAdapter adapter = new ArrayAdapter<>(
-                getActivity(),
-                android.R.layout.simple_list_item_1,
-                getActivity().getResources().getTextArray(R.array.string_array_settings));
-        setListAdapter(adapter);
+        saveCutoffCheckBoxPreference = (CheckBoxPreference)findPreference(MyApplication.getAppContext().getResources().getString(R.string.save_cutoff));
+        colorsSelectionPreference = (Preference)findPreference(MyApplication.getAppContext().getResources().getString(R.string.colors_selection));
+
+        colorsSelectionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(MyApplication.getAppContext(), ColorsActivity.class);
+                startActivityForResult(intent, REQUEST_CODE);
+                return true;
+            }
+        });
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        switch (position) {
-            case BACKGROUND_COLOR_NUMBER:
-                ColorsListFragment colorsListFragment = new ColorsListFragment();
-                fragmentTransaction.replace(R.id.settings_content, colorsListFragment);
-                break;
-            case FOREGROUND_COLOR_NUMBER:
-                System.out.println(1);
-                break;
-        }
-
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        getActivity().setResult(Activity.RESULT_OK, data);
     }
 }

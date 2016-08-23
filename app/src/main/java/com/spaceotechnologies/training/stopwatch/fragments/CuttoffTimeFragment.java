@@ -2,7 +2,11 @@ package com.spaceotechnologies.training.stopwatch.fragments;
 
 
 import android.app.Fragment;
+import android.content.ContentValues;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +19,8 @@ import android.widget.LinearLayout;
 
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.adapters.RecyclerViewAdapter;
+import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
+import com.spaceotechnologies.training.stopwatch.data.DatabaseHelper;
 import com.spaceotechnologies.training.stopwatch.services.StopwatchService;
 import com.spaceotechnologies.training.stopwatch.services.TimerService;
 
@@ -76,6 +82,9 @@ public class CuttoffTimeFragment extends Fragment {
         cutouffButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext());
+
                 switch (viewPager.getCurrentItem()) {
                     case STOPWATCH_NUMBER:
                         if (!isAddButtonStopwatchClicked) {
@@ -83,6 +92,9 @@ public class CuttoffTimeFragment extends Fragment {
                             showCorrectButtons();
                         }
                         addNewItemStopwatch(stopwatchService.getFormattedElapsedTime());
+                        if (prefs.getBoolean(getString(R.string.save_cutoff), false)) {
+                            putIntoDatabase(stopwatchService.getFormattedElapsedTime(), getResources().getString(R.string.cutoff_stopwatch_table));
+                        }
                         break;
                     case TIMER_NUMBER:
                         if (!isAddButtonTimerClicked) {
@@ -90,10 +102,23 @@ public class CuttoffTimeFragment extends Fragment {
                             showCorrectButtons();
                         }
                         addNewItemTimer(timerService.getFormattedLeftTime());
+                        if (prefs.getBoolean(getString(R.string.save_cutoff), false)) {
+                            putIntoDatabase(timerService.getFormattedLeftTime(), getResources().getString(R.string.cutoff_timer_table));
+                        }
                         break;
                 }
             }
         });
+    }
+
+    private void putIntoDatabase(String timeValue, String table){
+        ContentValues values = new ContentValues();
+        values.put(MyApplication.getAppContext().getResources().getString(R.string.cutoff_value_value), timeValue);
+        DatabaseHelper mDatabaseHelper;
+        SQLiteDatabase mSqLiteDatabase;
+        mDatabaseHelper = new DatabaseHelper(MyApplication.getAppContext());
+        mSqLiteDatabase = mDatabaseHelper.getWritableDatabase();
+        mSqLiteDatabase.insert(table, null, values);
     }
 
     public void addNewItemStopwatch(String itemText) {

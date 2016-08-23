@@ -1,7 +1,7 @@
 package com.spaceotechnologies.training.stopwatch.fragments;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +26,6 @@ public class CounterFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(tag, "In the onCreateView() event");
         final View rootView = inflater.inflate(R.layout.fragment_counter, container, false);
-
         return rootView;
     }
 
@@ -37,7 +36,6 @@ public class CounterFragment extends Fragment {
         args.putInt(MyApplication.getAppContext().getString(R.string.page), page);
         args.putString(MyApplication.getAppContext().getString(R.string.title), title);
         counterFragment.setArguments(args);
-
         return counterFragment;
     }
 
@@ -49,8 +47,8 @@ public class CounterFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(tag, "In the onCreate() event");
         super.onCreate(savedInstanceState);
-        page = getArguments().getInt(MyApplication.getAppContext().getString(R.string.page));
-        title = getArguments().getString(MyApplication.getAppContext().getString(R.string.title));
+//        page = getArguments().getInt(MyApplication.getAppContext().getString(R.string.page));
+//        title = getArguments().getString(MyApplication.getAppContext().getString(R.string.title));
     }
 
     @Override

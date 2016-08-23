@@ -6,6 +6,8 @@
     <string name="action_settings">Settings</string>
     <string name="action_reset">Reset</string>
     <string name="action_stop">Stop</string>
+    <string name="action_save">Save Time</string>
+    <string name="action_show_saved_time">Show Time</string>
 
     <string name="color">color</string>
 
@@ -28,6 +30,7 @@
     <string name="title">Title</string>
 
     <string name="android_switcher">android:switcher:</string>
+    <string name="android_switcher_fragment">android:switcher:fragment:</string>
 
     <string name="saved_start_time_stopwatch">savedStartTimeStopwatch</string>
     <string name="saved_is_stopvatch_running">savedIsStopvatchRuning</string>
@@ -62,6 +65,21 @@
     <string name="saved_is_stopwatch_running">savedIsStopwatchRunning</string>
     <string name="current_page">currentPage</string>
     <string name="preferences">preferences</string>
+
+    <string name="stopwatch_time_table">stopwatchTimeTable</string>
+    <string name="timer_time_table">timerTimeTable</string>
+    <string name="colors_table">colorsTable</string>
+    <string name="cutoff_stopwatch_table">cutoffStopwatchTable</string>
+    <string name="cutoff_timer_table">cutoffTimerTable</string>
+    <string name="background_color">BackgroundColor</string>
+    <string name="save_cutoff">saveCutoff</string>
+
+    <string name="time_name_column">time_name_column</string>
+    <string name="color_name_column">color_name_column</string>
+    <string name="color_value_column">color_value_column</string>
+    <string name="cutoff_value_value">cutoff_value_value</string>
+    <string name="database_name">timedatabase.db</string>
+    <string name="colors_selection">colorsSelection</string>
 
 
 </resources>
