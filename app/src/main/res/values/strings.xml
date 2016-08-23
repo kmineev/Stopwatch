@@ -80,6 +80,7 @@
     <string name="cutoff_value_value">cutoff_value_value</string>
     <string name="database_name">timedatabase.db</string>
     <string name="colors_selection">colorsSelection</string>
+    <string name="action_color_selection">Color Selection</string>
 
 
 </resources>
