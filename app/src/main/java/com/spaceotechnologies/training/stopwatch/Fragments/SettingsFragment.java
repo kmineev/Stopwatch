@@ -19,14 +19,16 @@ public class SettingsFragment extends PreferenceFragment {
     CheckBoxPreference saveCutoffCheckBoxPreference;
     Preference colorsSelectionPreference;
     private static final int REQUEST_CODE = 1;
+    public static final String SAVE_CUTOFF = "saveCutoff";
+    public static final String COLORS_SELECTION = "colors_selection";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref);
 
-        saveCutoffCheckBoxPreference = (CheckBoxPreference)findPreference(MyApplication.getAppContext().getResources().getString(R.string.save_cutoff));
-        colorsSelectionPreference = (Preference)findPreference(MyApplication.getAppContext().getResources().getString(R.string.colors_selection));
+        saveCutoffCheckBoxPreference = (CheckBoxPreference) findPreference(SAVE_CUTOFF);
+        colorsSelectionPreference = findPreference(COLORS_SELECTION);
 
         colorsSelectionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override

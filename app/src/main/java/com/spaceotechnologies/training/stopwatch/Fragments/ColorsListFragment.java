@@ -11,6 +11,8 @@ import android.widget.ListView;
 
 import com.spaceotechnologies.training.stopwatch.R;
 
+import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.COLOR_EXTRA;
+
 /**
  * Created by Kostez on 13.07.2016.
  */
@@ -31,7 +33,7 @@ public class ColorsListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         String colorName = (String) l.getAdapter().getItem(position);
         Intent intent = new Intent();
-        intent.putExtra(getResources().getString(R.string.color), colorName);
+        intent.putExtra(COLOR_EXTRA, colorName);
         getActivity().setResult(Activity.RESULT_OK, intent);
         getActivity().finish();
     }

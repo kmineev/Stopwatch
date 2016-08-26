@@ -8,14 +8,13 @@ import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.fragments.RootStopwatchFragment;
 import com.spaceotechnologies.training.stopwatch.fragments.RootTimerFragment;
 
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.STOPWATCH_NUMBER;
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.TIMER_NUMBER;
-
 /**
  * Created by Kostez on 01.08.2016.
  */
 public class TextPagerAdapter extends android.support.v13.app.FragmentPagerAdapter {
 
+    public static final int STOPWATCH_NUMBER = 0;
+    public static final int TIMER_NUMBER = 1;
     private final int COUNT = 2;
 
     private String tabTitles[];
@@ -26,7 +25,7 @@ public class TextPagerAdapter extends android.support.v13.app.FragmentPagerAdapt
         this.tabTitles = context.getResources().getStringArray(R.array.titles_tabs);
     }
 
-//    CounterFragment.newInstance(STOPWATCH_NUMBER, tabTitles[STOPWATCH_NUMBER]);
+//
 //    TimerFragment.newInstance(TIMER_NUMBER, tabTitles[TIMER_NUMBER]);
     @Override
     public Fragment getItem(int i) {
