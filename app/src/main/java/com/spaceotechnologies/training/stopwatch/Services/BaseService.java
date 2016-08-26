@@ -10,15 +10,15 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
-import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.activitys.MainActivity;
 
 /**
  * Created by Kostez on 03.08.2016.
  */
 public abstract class BaseService extends Service {
+
+    protected String SAVED_IS_TIMER_RUNNING = "savedIsStopvatchTimer";
 
     protected NotificationManager notificationManager;
     protected Resources res;
@@ -39,7 +39,6 @@ public abstract class BaseService extends Service {
     };
 
     public void createNotification() {
-        Log.d(getResources().getString(R.string.log_app), "BaseService createNotification");
         builder = setBuilder();
         Intent resultIntent = new Intent(this, MainActivity.class);
         resultIntent.setAction(Intent.ACTION_MAIN);
@@ -52,36 +51,30 @@ public abstract class BaseService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(getResources().getString(R.string.log_app), "BaseService onBind");
         createNotification();
         return binder;
     }
 
     public void onRebind(Intent intent) {
         super.onRebind(intent);
-        Log.d(getResources().getString(R.string.log_app), "BaseService onRebind");
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(getResources().getString(R.string.log_app), "BaseService onUnbind");
         return super.onUnbind(intent);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        Log.d(getResources().getString(R.string.log_app), "BaseService onTaskRemoved");
         super.onTaskRemoved(rootIntent);
     }
 
     public void showNotification() {
-        Log.d(getResources().getString(R.string.log_app), "BaseService showNotification");
         updateNotification();
         mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), FREQUENCY);
     }
 
     public void hideNotification() {
-        Log.d(getResources().getString(R.string.log_app), "BaseService hideNotification");
         if (notificationManager != null) {
             notificationManager.cancel(NOTIFY_ID);
         }

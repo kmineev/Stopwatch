@@ -8,16 +8,19 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
+import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 import com.spaceotechnologies.training.stopwatch.base.Timer;
-import com.spaceotechnologies.training.stopwatch.R;
 
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.TIMER_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.BROADCAST_ACTION;
+import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.CURRENT_PAGE;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_NUMBER;
 import static com.spaceotechnologies.training.stopwatch.applications.MyApplication.getPreferences;
 
 public class TimerService extends BaseService {
+
+    private static final String SAVED_START_TIME_TIMER = "savedStartTimeTimer";
 
     private final int START_VALUE_TIMER = 15000;
     private Timer timer;
@@ -32,10 +35,9 @@ public class TimerService extends BaseService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(getResources().getString(R.string.log_app), "TimerService onCreate");
 
-        if (getPreferences().getBoolean(getString(R.string.saved_is_timer_running), false)) {
-            timer = new Timer(getPreferences().getLong(getString(R.string.saved_start_time_timer), DEFAULT_TIME));
+        if (getPreferences().getBoolean(SAVED_IS_TIMER_RUNNING, false)) {
+            timer = new Timer(getPreferences().getLong(SAVED_START_TIME_TIMER, DEFAULT_TIME));
             startTimerService();
         } else {
             timer = new Timer();
@@ -50,7 +52,6 @@ public class TimerService extends BaseService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(getResources().getString(R.string.log_app), "TimerService onStartCommand");
         return START_STICKY;
     }
 
@@ -68,7 +69,6 @@ public class TimerService extends BaseService {
     }
 
     public void start() {
-        Log.d(getResources().getString(R.string.log_app), "TimerService start");
         if (!isFinalNotification) {
             timer.start();
             showNotification();
@@ -89,7 +89,6 @@ public class TimerService extends BaseService {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(getResources().getString(R.string.log_app), "TimerService onBind");
 
         if (isTimerRunning() || isTimeout()) {
             sendPageItemReceiver();
@@ -99,25 +98,22 @@ public class TimerService extends BaseService {
     }
 
     private void sendPageItemReceiver() {
-        Intent intent1 = new Intent(getResources().getString(R.string.broadcast_action));
-        intent1.putExtra(getResources().getString(R.string.current_page), TIMER_NUMBER);
+        Intent intent1 = new Intent(BROADCAST_ACTION);
+        intent1.putExtra(CURRENT_PAGE, TIMER_NUMBER);
         sendBroadcast(intent1);
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(getResources().getString(R.string.log_app), "TimerService onUnbind");
         return super.onUnbind(intent);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        Log.d(getResources().getString(R.string.log_app), "TimerService onTaskRemoved");
-
         SharedPreferences sharedPref = MyApplication.getPreferences();
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(getString(R.string.saved_start_time_timer), timer.getStartTime());
-        editor.putBoolean(getString(R.string.saved_is_timer_running), isTimerRunning());
+        editor.putLong(SAVED_START_TIME_TIMER, timer.getStartTime());
+        editor.putBoolean(SAVED_IS_TIMER_RUNNING, isTimerRunning());
         editor.commit();
 
         if (!isTimerRunning()) {

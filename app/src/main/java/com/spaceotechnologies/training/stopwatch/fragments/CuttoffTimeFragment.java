@@ -2,9 +2,7 @@ package com.spaceotechnologies.training.stopwatch.fragments;
 
 
 import android.app.Fragment;
-import android.content.ContentValues;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.res.ResourcesCompat;
@@ -17,20 +15,25 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
+import com.j256.ormlite.dao.Dao;
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.adapters.RecyclerViewAdapter;
 import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
-import com.spaceotechnologies.training.stopwatch.data.DatabaseHelper;
+import com.spaceotechnologies.training.stopwatch.data.DatabaseHelperFactory;
+import com.spaceotechnologies.training.stopwatch.data.StopwatchTimeTable;
+import com.spaceotechnologies.training.stopwatch.data.TimerTimeTable;
 import com.spaceotechnologies.training.stopwatch.services.StopwatchService;
 import com.spaceotechnologies.training.stopwatch.services.TimerService;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.OvershootInRightAnimator;
 
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.STOPWATCH_NUMBER;
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.TIMER_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.fragments.SettingsFragment.SAVE_CUTOFF;
 
 /**
  * Created by Kostez on 17.08.2016.
@@ -92,8 +95,12 @@ public class CuttoffTimeFragment extends Fragment {
                             showCorrectButtons();
                         }
                         addNewItemStopwatch(stopwatchService.getFormattedElapsedTime());
-                        if (prefs.getBoolean(getString(R.string.save_cutoff), false)) {
-                            putIntoDatabase(stopwatchService.getFormattedElapsedTime(), getResources().getString(R.string.cutoff_stopwatch_table));
+                        if (prefs.getBoolean(SAVE_CUTOFF, false)) {
+                            try {
+                                putIntoStopwatchDatabase(stopwatchService.getFormattedElapsedTime());
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
                         }
                         break;
                     case TIMER_NUMBER:
@@ -102,8 +109,12 @@ public class CuttoffTimeFragment extends Fragment {
                             showCorrectButtons();
                         }
                         addNewItemTimer(timerService.getFormattedLeftTime());
-                        if (prefs.getBoolean(getString(R.string.save_cutoff), false)) {
-                            putIntoDatabase(timerService.getFormattedLeftTime(), getResources().getString(R.string.cutoff_timer_table));
+                        if (prefs.getBoolean(SAVE_CUTOFF, false)) {
+                            try {
+                                putIntoTimerDatabase(timerService.getFormattedLeftTime());
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
                         }
                         break;
                 }
@@ -111,14 +122,16 @@ public class CuttoffTimeFragment extends Fragment {
         });
     }
 
-    private void putIntoDatabase(String timeValue, String table){
-        ContentValues values = new ContentValues();
-        values.put(MyApplication.getAppContext().getResources().getString(R.string.cutoff_value_value), timeValue);
-        DatabaseHelper mDatabaseHelper;
-        SQLiteDatabase mSqLiteDatabase;
-        mDatabaseHelper = new DatabaseHelper(MyApplication.getAppContext());
-        mSqLiteDatabase = mDatabaseHelper.getWritableDatabase();
-        mSqLiteDatabase.insert(table, null, values);
+    private void putIntoStopwatchDatabase(String timeValue) throws SQLException {
+        Dao<StopwatchTimeTable, Integer> stopwatchTimeTableDao = DatabaseHelperFactory.getDatabaseHelper().getStopwatchTimeTableDao();
+        StopwatchTimeTable stopwatchTimeTable = new StopwatchTimeTable(timeValue);
+        stopwatchTimeTableDao.create(stopwatchTimeTable);
+    }
+
+    private void putIntoTimerDatabase(String timeValue) throws SQLException {
+        Dao<TimerTimeTable, Integer> timerTimeTableDao = DatabaseHelperFactory.getDatabaseHelper().getTimerTimeTableDao();
+        TimerTimeTable timerTimeTable = new TimerTimeTable(timeValue);
+        timerTimeTableDao.create(timerTimeTable);
     }
 
     public void addNewItemStopwatch(String itemText) {

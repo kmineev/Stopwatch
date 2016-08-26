@@ -1,57 +1,76 @@
 package com.spaceotechnologies.training.stopwatch.fragments;
 
 import android.app.ListFragment;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 
-import com.spaceotechnologies.training.stopwatch.R;
-import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
-import com.spaceotechnologies.training.stopwatch.data.DatabaseHelper;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.spaceotechnologies.training.stopwatch.data.DatabaseHelperFactory;
+import com.spaceotechnologies.training.stopwatch.data.StopwatchTimeTable;
+import com.spaceotechnologies.training.stopwatch.data.TimerTimeTable;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by Kostez on 18.08.2016.
  */
 public class TimeListFragment extends ListFragment {
 
-    private String tableName = "";
+    private int number;
+    private ArrayList<String> timeArray;
 
-    public TimeListFragment(String tableName) {
-        this.tableName = tableName;
+    public TimeListFragment(int number) {
+        this.number = number;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DatabaseHelper mDatabaseHelper;
-        SQLiteDatabase mSqLiteDatabase;
 
-        mDatabaseHelper = new DatabaseHelper(MyApplication.getAppContext());
-        mSqLiteDatabase = mDatabaseHelper.getWritableDatabase();
+        timeArray = new ArrayList<>();
 
-        Cursor cursor = mSqLiteDatabase.query(tableName, new String[]{BaseColumns._ID, MyApplication.getAppContext().getResources().getString(R.string.time_name_column)},
-                null, null,
-                null, null, null);
-
-        ArrayList<String> timeArray = new ArrayList<>();
-
-        while (cursor.moveToNext()) {
-            long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
-            String time = cursor.getString(cursor.getColumnIndex(MyApplication.getAppContext().getResources().getString(R.string.time_name_column)));
-            timeArray.add(time);
+        try {
+            setTimeArray();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-        cursor.close();
 
         ListAdapter adapter = new ArrayAdapter<>(
                 getActivity(),
                 android.R.layout.simple_list_item_1,
                 timeArray);
         setListAdapter(adapter);
+    }
+
+    private void setTimeArray() throws SQLException {
+        switch (number) {
+            case 0:
+                Dao<StopwatchTimeTable, Integer> stopwatchTimeTableDao = DatabaseHelperFactory.getDatabaseHelper().getStopwatchTimeTableDao();
+                QueryBuilder<StopwatchTimeTable, Integer> queryBuilderStopwatch = stopwatchTimeTableDao.queryBuilder();
+                PreparedQuery<StopwatchTimeTable> preparedQuery = queryBuilderStopwatch.prepare();
+                Iterator<StopwatchTimeTable> stopwatchTimeTableIterator = stopwatchTimeTableDao.query(preparedQuery).iterator();
+
+                while (stopwatchTimeTableIterator.hasNext()) {
+                    timeArray.add(stopwatchTimeTableIterator.next().getStopwatchTimeValue());
+                }
+
+                break;
+            case 1:
+                Dao<TimerTimeTable, Integer> timerTimeTableDao = DatabaseHelperFactory.getDatabaseHelper().getTimerTimeTableDao();
+                QueryBuilder<TimerTimeTable, Integer> queryBuilder = timerTimeTableDao.queryBuilder();
+                PreparedQuery<TimerTimeTable> preparedQueryTimer = queryBuilder.prepare();
+                Iterator<TimerTimeTable> timerTimeTableIterator = timerTimeTableDao.query(preparedQueryTimer).iterator();
+
+                while (timerTimeTableIterator.hasNext()) {
+                    timeArray.add(timerTimeTableIterator.next().getTimerTimeValue());
+                }
+
+                break;
+        }
     }
 }

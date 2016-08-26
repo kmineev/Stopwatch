@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.spaceotechnologies.training.stopwatch.R;
+import com.spaceotechnologies.training.stopwatch.data.DatabaseHelperFactory;
 
 /**
  * Created by Kostez on 01.08.2016.
@@ -13,11 +13,14 @@ public class MyApplication extends Application {
 
     private static Context context;
     private static SharedPreferences preferences;
+    private static final String PREFERENCES = "preferences";
 
+    @Override
     public void onCreate() {
         super.onCreate();
         MyApplication.context = getApplicationContext();
-        preferences = getSharedPreferences( getPackageName() + getString(R.string.preferences), MODE_PRIVATE);
+        preferences = getSharedPreferences( getPackageName() + PREFERENCES, MODE_PRIVATE);
+        DatabaseHelperFactory.setHelper(getApplicationContext());
     }
 
     public static Context getAppContext() {
@@ -26,5 +29,11 @@ public class MyApplication extends Application {
 
     public static SharedPreferences getPreferences() {
         return preferences;
+    }
+
+    @Override
+    public void onTerminate() {
+        DatabaseHelperFactory.releaseHelper();
+        super.onTerminate();
     }
 }

@@ -1,85 +1,95 @@
 package com.spaceotechnologies.training.stopwatch.data;
 
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.spaceotechnologies.training.stopwatch.R;
-import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
+import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
+
+import java.sql.SQLException;
 
 /**
- * Created by Kostez on 18.08.2016.
+ * Created by Kostez on 25.08.2016.
  */
-public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns{
+public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
-    // версия базы данных
+    private static final String DATABASE_NAME = "mydatabasedb.db";
     private static final int DATABASE_VERSION = 1;
 
-    private static final String DATABASE_CREATE_SCRIPT_STOPWATCH = "create table "
-            + MyApplication.getAppContext().getResources().getString(R.string.stopwatch_time_table) + " (" + BaseColumns._ID
-            + " integer primary key autoincrement, " + MyApplication.getAppContext().getResources().getString(R.string.time_name_column)
-            + " text not null);";
-
-    private static final String DATABASE_CREATE_SCRIPT_TIMER = "create table "
-            + MyApplication.getAppContext().getResources().getString(R.string.timer_time_table) + " (" + BaseColumns._ID
-            + " integer primary key autoincrement, " + MyApplication.getAppContext().getResources().getString(R.string.time_name_column)
-            + " text not null);";
-
-    private static final String DATABASE_CREATE_SCRIPT_COLORS = "create table "
-            + MyApplication.getAppContext().getResources().getString(R.string.colors_table) + " (" + BaseColumns._ID
-            + " integer primary key autoincrement, " + MyApplication.getAppContext().getResources().getString(R.string.color_name_column)
-            + " text not null, " + MyApplication.getAppContext().getResources().getString(R.string.color_value_column)
-            + " text not null);";
-
-    private static final String DATABASE_CREATE_SCRIPT_CUTOFF_STOPWATCH = "create table "
-            + MyApplication.getAppContext().getResources().getString(R.string.cutoff_stopwatch_table) + " (" + BaseColumns._ID
-            + " integer primary key autoincrement, " + MyApplication.getAppContext().getResources().getString(R.string.cutoff_value_value)
-            + " text not null);";
-
-    private static final String DATABASE_CREATE_SCRIPT_CUTOFF_TIMER = "create table "
-            + MyApplication.getAppContext().getResources().getString(R.string.cutoff_timer_table) + " (" + BaseColumns._ID
-            + " integer primary key autoincrement, " + MyApplication.getAppContext().getResources().getString(R.string.cutoff_value_value)
-            + " text not null);";
+    private Dao<StopwatchTimeTable, Integer> stopwatchTimeTableDao;
+    private Dao<TimerTimeTable, Integer> timerTimeTableDao;
+    private Dao<ColorTable, Integer> colorTableDao;
+    private Dao<CutoffStopwatchTable, Integer> cutoffStopwatchTableDao;
+    private Dao<CutoffTimerTable, Integer> cutoffTimerTableDao;
 
     public DatabaseHelper(Context context) {
-        super(context, MyApplication.getAppContext().getResources().getString(R.string.database_name), null, DATABASE_VERSION);
-    }
-
-    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
-                          int version) {
-        super(context, name, factory, version);
-    }
-
-    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
-                          int version, DatabaseErrorHandler errorHandler) {
-        super(context, name, factory, version, errorHandler);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(DATABASE_CREATE_SCRIPT_STOPWATCH);
-        sqLiteDatabase.execSQL(DATABASE_CREATE_SCRIPT_TIMER);
-        sqLiteDatabase.execSQL(DATABASE_CREATE_SCRIPT_COLORS);
-        sqLiteDatabase.execSQL(DATABASE_CREATE_SCRIPT_CUTOFF_STOPWATCH);
-        sqLiteDatabase.execSQL(DATABASE_CREATE_SCRIPT_CUTOFF_TIMER);
+    public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
+        try {
+            TableUtils.createTable(connectionSource, StopwatchTimeTable.class);
+            TableUtils.createTable(connectionSource, TimerTimeTable.class);
+            TableUtils.createTable(connectionSource, ColorTable.class);
+            TableUtils.createTable(connectionSource, CutoffStopwatchTable.class);
+            TableUtils.createTable(connectionSource, CutoffTimerTable.class);
+        } catch (SQLException e) {
+            Log.e(DatabaseHelper.class.getName(), "Unable to create datbases", e);
+        }
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        // Запишем в журнал
-        Log.w("SQLite", "Обновляемся с версии " + oldVersion + " на версию " + newVersion);
-
-        // Удаляем старую таблицу и создаём новую
-        sqLiteDatabase.execSQL("DROP TABLE IF IT EXISTS " + MyApplication.getAppContext().getResources().getString(R.string.stopwatch_time_table));
-        sqLiteDatabase.execSQL("DROP TABLE IF IT EXISTS " + MyApplication.getAppContext().getResources().getString(R.string.timer_time_table));
-        sqLiteDatabase.execSQL("DROP TABLE IF IT EXISTS " + MyApplication.getAppContext().getResources().getString(R.string.colors_table));
-        sqLiteDatabase.execSQL("DROP TABLE IF IT EXISTS " + MyApplication.getAppContext().getResources().getString(R.string.cutoff_stopwatch_table));
-        sqLiteDatabase.execSQL("DROP TABLE IF IT EXISTS " + MyApplication.getAppContext().getResources().getString(R.string.cutoff_timer_table));
-
-        // Создаём новую таблицу
-        onCreate(sqLiteDatabase);
+    public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
+        try {
+            TableUtils.dropTable(connectionSource, StopwatchTimeTable.class, true);
+            TableUtils.dropTable(connectionSource, TimerTimeTable.class, true);
+            TableUtils.dropTable(connectionSource, ColorTable.class, true);
+            TableUtils.dropTable(connectionSource, CutoffStopwatchTable.class, true);
+            TableUtils.dropTable(connectionSource, CutoffTimerTable.class, true);
+            onCreate(database, connectionSource);
+        } catch (SQLException e) {
+            Log.e(DatabaseHelper.class.getName(), "Unable to upgrade database from version " + oldVersion + " to new "
+                    + newVersion, e);
+        }
     }
+
+    public Dao<StopwatchTimeTable, Integer> getStopwatchTimeTableDao() throws SQLException {
+        if (stopwatchTimeTableDao == null) {
+            stopwatchTimeTableDao = getDao(StopwatchTimeTable.class);
+        }
+        return stopwatchTimeTableDao;
+    }
+
+    public Dao<TimerTimeTable, Integer> getTimerTimeTableDao() throws SQLException {
+        if (timerTimeTableDao == null) {
+            timerTimeTableDao = getDao(TimerTimeTable.class);
+        }
+        return timerTimeTableDao;
+    }
+
+    public Dao<ColorTable, Integer> getColorTableDao() throws SQLException {
+        if (colorTableDao == null) {
+            colorTableDao = getDao(ColorTable.class);
+        }
+        return colorTableDao;
+    }
+
+    public Dao<CutoffStopwatchTable, Integer> getCutoffStopwatchTableDao() throws SQLException {
+        if (cutoffStopwatchTableDao == null) {
+            cutoffStopwatchTableDao = getDao(CutoffStopwatchTable.class);
+        }
+        return cutoffStopwatchTableDao;
+    }
+
+    public Dao<CutoffTimerTable, Integer> getCutoffTimerTableDao() throws SQLException {
+        if (cutoffTimerTableDao == null) {
+            cutoffTimerTableDao = getDao(CutoffTimerTable.class);
+        }
+        return cutoffTimerTableDao;
+    }
+
 }
