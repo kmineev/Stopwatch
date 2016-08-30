@@ -15,6 +15,8 @@ public class TextPagerAdapter extends android.support.v13.app.FragmentPagerAdapt
 
     public static final int STOPWATCH_NUMBER = 0;
     public static final int TIMER_NUMBER = 1;
+    public static final int STOPWATCH_FRAGMENT_POSITION = 0;
+    public static final int TIMER_FRAGMENT_POSITION = 0;
     private final int COUNT = 2;
 
     private String tabTitles[];

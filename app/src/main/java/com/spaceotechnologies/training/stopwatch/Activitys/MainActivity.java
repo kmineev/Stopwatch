@@ -47,6 +47,8 @@ import java.util.Iterator;
 
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_NUMBER;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_FRAGMENT_POSITION;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_FRAGMENT_POSITION;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,9 +60,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String CURRENT_PAGE = "currentPage";
 
     private static final String BACKGROUND_COLOR = "BackgroundColor";
-
-    public static final int STOPWATCH_FRAGMENT_POSITION = 0;
-    public static final int TIMER_FRAGMENT_POSITION = 0;
 
     private static final int REQUEST_CODE = 1;
     private static final long FREQUENCY = 100;

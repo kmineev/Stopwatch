@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.STOPWATCH_FRAGMENT_POSITION;
-import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_NUMBER;
 import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.ANDROID_SWITCHER_FRAGMENT;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_FRAGMENT_POSITION;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_NUMBER;
 
 /**
  * Created by Kostez on 22.08.2016.
