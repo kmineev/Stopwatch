@@ -51,10 +51,10 @@ import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapte
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_FRAGMENT_POSITION;
 import static com.spaceotechnologies.training.stopwatch.services.BaseService.BROADCAST_ACTION;
 import static com.spaceotechnologies.training.stopwatch.services.BaseService.CURRENT_PAGE;
+import static com.spaceotechnologies.training.stopwatch.fragments.ColorsListFragment.COLOR_EXTRA;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String COLOR_EXTRA = "color";
     public static final String ANDROID_SWITCHER = "android:switcher:";
     public static final String ANDROID_SWITCHER_FRAGMENT = "android:switcher:fragment:";
 
@@ -116,8 +116,6 @@ public class MainActivity extends AppCompatActivity {
         timerHandler.sendMessageDelayed(Message.obtain(timerHandler, TICK_TIMER), FREQUENCY);
 
         cuttoffTimeFragment = (CuttoffTimeFragment) getFragmentManager().findFragmentById(R.id.cutoff_time_fragment);
-
-//        this.deleteDatabase(getResources().getString(R.string.database_name));
 
         try {
             final Dao<ColorTable, Integer> colorTableDao = DatabaseHelperFactory.getDatabaseHelper().getColorTableDao();
