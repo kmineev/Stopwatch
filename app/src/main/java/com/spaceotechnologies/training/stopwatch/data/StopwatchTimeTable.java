@@ -9,13 +9,10 @@ import java.io.Serializable;
  */
 public class StopwatchTimeTable implements Serializable {
 
-    public static final String ID_FIELD = "stopwatch_time_id";
-    public static final String VALUE_FIELD = "stopwatch_time_value";
-
-    @DatabaseField(generatedId = true, columnName = ID_FIELD)
+    @DatabaseField(generatedId = true, columnName = "stopwatch_time_id")
     private int stopwatchTimeId;
 
-    @DatabaseField(columnName = VALUE_FIELD)
+    @DatabaseField(columnName = "stopwatch_time_value")
     private String stopwatchTimeValue;
 
     public StopwatchTimeTable() {
