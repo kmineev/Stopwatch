@@ -7,13 +7,10 @@ import com.j256.ormlite.field.DatabaseField;
  */
 public class CutoffStopwatchTable {
 
-    public static final String ID_FIELD = "cutoff_stopwatch_id";
-    public static final String VALUE_FIELD = "cutoff_stopwatch_value";
-
-    @DatabaseField(generatedId = true, columnName = ID_FIELD)
+    @DatabaseField(generatedId = true, columnName = "cutoff_stopwatch_id")
     public int cutoffStopwatchId;
 
-    @DatabaseField(columnName = VALUE_FIELD)
+    @DatabaseField(columnName = "cutoff_stopwatch_value")
     public String cutoffStopwatchValue;
 
     public CutoffStopwatchTable() {

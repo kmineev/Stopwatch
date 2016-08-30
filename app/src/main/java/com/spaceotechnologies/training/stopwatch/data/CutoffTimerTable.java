@@ -7,14 +7,10 @@ import com.j256.ormlite.field.DatabaseField;
  */
 public class CutoffTimerTable {
 
-    public static final String ID_FIELD = "cutoff_timer_id";
-    public static final String VALUE_FIELD = "cutoff_timer_value";
-
-
-    @DatabaseField(generatedId = true, columnName = ID_FIELD)
+    @DatabaseField(generatedId = true, columnName = "cutoff_timer_id")
     public int cutoffTimerId;
 
-    @DatabaseField(columnName = VALUE_FIELD)
+    @DatabaseField(columnName = "cutoff_timer_value")
     public String cutoffTimerValue;
 
     public CutoffTimerTable() {

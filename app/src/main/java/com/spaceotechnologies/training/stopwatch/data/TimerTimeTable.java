@@ -7,14 +7,10 @@ import com.j256.ormlite.field.DatabaseField;
  */
 public class TimerTimeTable {
 
-    public static final String ID_FIELD = "timer_time_id";
-    public static final String VALUE_FIELD = "timer_time_value";
-
-
-    @DatabaseField(generatedId = true, columnName = ID_FIELD)
+    @DatabaseField(generatedId = true, columnName = "timer_time_id")
     private int timerTimeId;
 
-    @DatabaseField(columnName = VALUE_FIELD)
+    @DatabaseField(columnName = "timer_time_value")
     private String timerTimeValue;
 
     public TimerTimeTable() {
