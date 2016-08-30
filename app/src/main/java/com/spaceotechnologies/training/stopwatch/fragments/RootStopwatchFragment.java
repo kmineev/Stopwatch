@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.spaceotechnologies.training.stopwatch.R;
-import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 
 import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.ANDROID_SWITCHER_FRAGMENT;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_FRAGMENT_POSITION;
@@ -30,7 +29,7 @@ public class RootStopwatchFragment extends Fragment implements ParentRootFragmen
         getActivity().getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.root_frame_stopwatch,
-                        CounterFragment.newInstance(STOPWATCH_NUMBER, MyApplication.getAppContext().getResources().getStringArray(R.array.titles_tabs)[STOPWATCH_NUMBER]),
+                        CounterFragment.newInstance(),
                         ANDROID_SWITCHER_FRAGMENT + STOPWATCH_NUMBER + ':' + PAGE_ELEMENT)
                 .commit();
         return view;
@@ -59,7 +58,7 @@ public class RootStopwatchFragment extends Fragment implements ParentRootFragmen
                             R.animator.slide_enter_down,
                             R.animator.slide_exit_up)
                     .replace(R.id.root_frame_stopwatch,
-                            CounterFragment.newInstance(STOPWATCH_NUMBER, MyApplication.getAppContext().getResources().getStringArray(R.array.titles_tabs)[STOPWATCH_NUMBER]),
+                            CounterFragment.newInstance(),
                             ANDROID_SWITCHER_FRAGMENT + STOPWATCH_NUMBER + ':' + STOPWATCH_FRAGMENT_POSITION)
                     .commit();
             isStopwatchTimeListVisible = false;

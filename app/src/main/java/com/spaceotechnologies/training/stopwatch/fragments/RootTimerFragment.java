@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.spaceotechnologies.training.stopwatch.R;
-import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 
 import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.ANDROID_SWITCHER_FRAGMENT;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_FRAGMENT_POSITION;
@@ -30,7 +29,7 @@ public class RootTimerFragment extends Fragment implements ParentRootFragment {
         getActivity().getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.root_frame_timer,
-                        TimerFragment.newInstance(TIMER_NUMBER, MyApplication.getAppContext().getResources().getStringArray(R.array.titles_tabs)[TIMER_NUMBER]),
+                        TimerFragment.newInstance(),
                         ANDROID_SWITCHER_FRAGMENT + TIMER_NUMBER + ':' + PAGE_ELEMENT)
                 .commit();
         return view;
@@ -59,7 +58,7 @@ public class RootTimerFragment extends Fragment implements ParentRootFragment {
                             R.animator.slide_enter_down,
                             R.animator.slide_exit_up)
                     .replace(R.id.root_frame_timer,
-                            TimerFragment.newInstance(TIMER_NUMBER, MyApplication.getAppContext().getResources().getStringArray(R.array.titles_tabs)[TIMER_NUMBER]),
+                            TimerFragment.newInstance(),
                             ANDROID_SWITCHER_FRAGMENT + TIMER_NUMBER + ':' + TIMER_FRAGMENT_POSITION)
                     .commit();
             isTimerTimeListVisible = false;

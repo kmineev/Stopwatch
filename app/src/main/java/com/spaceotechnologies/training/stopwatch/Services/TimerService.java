@@ -13,8 +13,6 @@ import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 import com.spaceotechnologies.training.stopwatch.base.Timer;
 
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.BROADCAST_ACTION;
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.CURRENT_PAGE;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_NUMBER;
 import static com.spaceotechnologies.training.stopwatch.applications.MyApplication.getPreferences;
 

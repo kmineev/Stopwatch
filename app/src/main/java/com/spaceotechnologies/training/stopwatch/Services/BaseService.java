@@ -19,6 +19,8 @@ import com.spaceotechnologies.training.stopwatch.activitys.MainActivity;
 public abstract class BaseService extends Service {
 
     protected String SAVED_IS_TIMER_RUNNING = "savedIsStopvatchTimer";
+    public static final String BROADCAST_ACTION = "serviceBackBroadcast";
+    public static final String CURRENT_PAGE = "currentPage";
 
     protected NotificationManager notificationManager;
     protected Resources res;

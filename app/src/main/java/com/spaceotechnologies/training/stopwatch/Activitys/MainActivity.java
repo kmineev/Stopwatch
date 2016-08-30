@@ -49,15 +49,14 @@ import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapte
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_NUMBER;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_FRAGMENT_POSITION;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_FRAGMENT_POSITION;
+import static com.spaceotechnologies.training.stopwatch.services.BaseService.BROADCAST_ACTION;
+import static com.spaceotechnologies.training.stopwatch.services.BaseService.CURRENT_PAGE;
 
 public class MainActivity extends AppCompatActivity {
-
 
     public static final String COLOR_EXTRA = "color";
     public static final String ANDROID_SWITCHER = "android:switcher:";
     public static final String ANDROID_SWITCHER_FRAGMENT = "android:switcher:fragment:";
-    public static final String BROADCAST_ACTION = "serviceBackBroadcast";
-    public static final String CURRENT_PAGE = "currentPage";
 
     private static final String BACKGROUND_COLOR = "BackgroundColor";
 
