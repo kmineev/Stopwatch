@@ -11,12 +11,12 @@ import android.widget.ListView;
 
 import com.spaceotechnologies.training.stopwatch.R;
 
-import static com.spaceotechnologies.training.stopwatch.activitys.MainActivity.COLOR_EXTRA;
-
 /**
  * Created by Kostez on 13.07.2016.
  */
 public class ColorsListFragment extends ListFragment {
+
+    public static final String COLOR_EXTRA = "color";
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
