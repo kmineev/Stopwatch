@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.spaceotechnologies.training.stopwatch.R;
-import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 import com.spaceotechnologies.training.stopwatch.views.AutoResizeTextView;
 
 /**
@@ -15,8 +14,6 @@ import com.spaceotechnologies.training.stopwatch.views.AutoResizeTextView;
  */
 public class TimerFragment extends Fragment {
 
-    private String title;
-    private int page;
     private AutoResizeTextView autoResizeTextView;
 
     @Override
@@ -25,11 +22,9 @@ public class TimerFragment extends Fragment {
         return rootView;
     }
 
-    public static TimerFragment newInstance(int page, String title) {
+    public static TimerFragment newInstance() {
         TimerFragment timerFragment = new TimerFragment();
         Bundle args = new Bundle();
-        args.putInt(MyApplication.getAppContext().getString(R.string.page), page);
-        args.putString(MyApplication.getAppContext().getString(R.string.title), title);
         timerFragment.setArguments(args);
         return timerFragment;
     }
@@ -37,8 +32,6 @@ public class TimerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        page = getArguments().getInt(MyApplication.getAppContext().getString(R.string.page));
-//        title = getArguments().getString(MyApplication.getAppContext().getString(R.string.title));
     }
 
     @Override

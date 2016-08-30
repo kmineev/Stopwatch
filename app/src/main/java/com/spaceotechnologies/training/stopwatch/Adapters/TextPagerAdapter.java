@@ -27,8 +27,6 @@ public class TextPagerAdapter extends android.support.v13.app.FragmentPagerAdapt
         this.tabTitles = context.getResources().getStringArray(R.array.titles_tabs);
     }
 
-//
-//    TimerFragment.newInstance(TIMER_NUMBER, tabTitles[TIMER_NUMBER]);
     @Override
     public Fragment getItem(int i) {
         switch (i) {
