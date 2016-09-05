@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -45,13 +47,15 @@ import com.spaceotechnologies.training.stopwatch.services.TimerService;
 import java.sql.SQLException;
 import java.util.Iterator;
 
-import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_NUMBER;
-import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_NUMBER;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_FRAGMENT_POSITION;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.STOPWATCH_NUMBER;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_FRAGMENT_POSITION;
+import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_NUMBER;
+import static com.spaceotechnologies.training.stopwatch.fragments.ColorsListFragment.COLOR_EXTRA;
+import static com.spaceotechnologies.training.stopwatch.fragments.PictureFragment.PICTURE_EXTRA;
 import static com.spaceotechnologies.training.stopwatch.services.BaseService.BROADCAST_ACTION;
 import static com.spaceotechnologies.training.stopwatch.services.BaseService.CURRENT_PAGE;
-import static com.spaceotechnologies.training.stopwatch.fragments.ColorsListFragment.COLOR_EXTRA;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -70,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
     private int newBackgroundColor = -1;
     private int oldBackgroundColorARGB = -1;
     private int currentPage = 0;
+    private boolean isBackgroundImage = false;
+    private Bitmap bitmapBackground;
+    private Drawable backgroundDrawable;
 
     private Menu menu;
     private Toolbar toolbar;
@@ -362,10 +369,17 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        color = data.getStringExtra(COLOR_EXTRA);
-        int colorARGB = getColor(color);
+        String backgroundImageFileName;
 
-        setBackgroundColor(colorARGB);
+        if ((backgroundImageFileName = data.getStringExtra(PICTURE_EXTRA)) != null) {
+            isBackgroundImage = true;
+            setImageBackground(backgroundImageFileName);
+        } else {
+            isBackgroundImage = false;
+            color = data.getStringExtra(COLOR_EXTRA);
+            int colorARGB = getColor(color);
+            setBackgroundColor(colorARGB);
+        }
     }
 
     private int getColor(String nameColor) {
@@ -410,6 +424,13 @@ public class MainActivity extends AppCompatActivity {
         });
         oldBackgroundColorARGB = newColor;
         colorAnimation.start();
+    }
+
+    private void setImageBackground(String backgroundImageFileName) {
+        final LinearLayout counterlL = (LinearLayout) findViewById(R.id.counterBackground);
+
+        backgroundDrawable = Drawable.createFromPath(backgroundImageFileName);
+        counterlL.setBackground(backgroundDrawable);
     }
 
     @Override

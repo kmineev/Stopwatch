@@ -11,4 +11,9 @@
         android:summary="Color selection for application interface"
         android:title="Color selection">
     </Preference>
+    <Preference
+        android:key="background_selection"
+        android:summary="Backgrounds oboobs selection for application interface"
+        android:title="Backgrounds oboobs">
+    </Preference>
 </PreferenceScreen>

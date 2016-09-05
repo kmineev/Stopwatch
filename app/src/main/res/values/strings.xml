@@ -27,6 +27,7 @@
     <string name="timeout">TIME OUT</string>
     <string name="page">Page</string>
     <string name="title">Title</string>
+    <string name="action_background_selection">Backgrounds oboobs</string>
 
     <string-array name="string_array_settings">
         <item>Background Color</item>

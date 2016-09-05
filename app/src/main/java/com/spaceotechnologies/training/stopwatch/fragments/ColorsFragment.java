@@ -41,7 +41,7 @@ public class ColorsFragment extends ListFragment {
         switch (position) {
             case BACKGROUND_COLOR_NUMBER:
                 ColorsListFragment colorsListFragment = new ColorsListFragment();
-                fragmentTransaction.replace(R.id.settings_content, colorsListFragment);
+                fragmentTransaction.replace(R.id.colors_content, colorsListFragment);
                 break;
             case FOREGROUND_COLOR_NUMBER:
                 System.out.println(1);

@@ -1,41 +1,40 @@
 package com.spaceotechnologies.training.stopwatch.activitys;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageButton;
 
-import com.spaceotechnologies.training.stopwatch.fragments.ColorsFragment;
 import com.spaceotechnologies.training.stopwatch.R;
+import com.spaceotechnologies.training.stopwatch.fragments.BackgroundsFragment;
 
-public class ColorsActivity extends AppCompatActivity {
+/**
+ * Created by Kostez on 30.08.2016.
+ */
+public class PicturesActivity extends AppCompatActivity {
 
-    private ColorsFragment settingsFragment;
+    private ImageButton imageButtonSetBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_colors);
+        setContentView(R.layout.activity_pictures);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (savedInstanceState == null) {
-            FragmentManager fragmentManager = getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            settingsFragment = new ColorsFragment();
-            fragmentTransaction.add(R.id.colors_content, settingsFragment);
-            fragmentTransaction.commit();
-        }
-
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        getFragmentManager().beginTransaction()
+                .add(R.id.backgrounds_content, new BackgroundsFragment())
+                .commit();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
