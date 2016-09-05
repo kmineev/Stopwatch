@@ -31,4 +31,5 @@ dependencies {
     compile 'jp.wasabeef:recyclerview-animators:2.2.3'
     compile 'com.android.support:support-v13:+'
     compile 'com.j256.ormlite:ormlite-android:4.48'
+    compile 'com.android.volley:volley:1.0.0'
 }

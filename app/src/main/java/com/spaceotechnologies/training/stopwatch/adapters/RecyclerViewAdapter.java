@@ -30,7 +30,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public void remove(int position){
-        if (position == LAST_POSITION && getItemCount()>0)
+        if (position == LAST_POSITION && getItemCount() > 0)
             position = getItemCount() -1 ;
 
         if (position > LAST_POSITION && position < getItemCount()) {

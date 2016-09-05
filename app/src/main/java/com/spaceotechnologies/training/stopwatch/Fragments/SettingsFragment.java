@@ -9,6 +9,7 @@ import android.preference.PreferenceFragment;
 
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.activitys.ColorsActivity;
+import com.spaceotechnologies.training.stopwatch.activitys.PicturesActivity;
 import com.spaceotechnologies.training.stopwatch.applications.MyApplication;
 
 /**
@@ -18,9 +19,12 @@ public class SettingsFragment extends PreferenceFragment {
 
     CheckBoxPreference saveCutoffCheckBoxPreference;
     Preference colorsSelectionPreference;
+    Preference backgroundSelectionPreference;
+
     private static final int REQUEST_CODE = 1;
     public static final String SAVE_CUTOFF = "saveCutoff";
     public static final String COLORS_SELECTION = "colors_selection";
+    public static final String BACKGROUND_SELECTION = "background_selection";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,11 +33,23 @@ public class SettingsFragment extends PreferenceFragment {
 
         saveCutoffCheckBoxPreference = (CheckBoxPreference) findPreference(SAVE_CUTOFF);
         colorsSelectionPreference = findPreference(COLORS_SELECTION);
+        backgroundSelectionPreference = findPreference(BACKGROUND_SELECTION);
 
         colorsSelectionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 Intent intent = new Intent(MyApplication.getAppContext(), ColorsActivity.class);
+                startActivityForResult(intent, REQUEST_CODE);
+                return true;
+            }
+        });
+
+        backgroundSelectionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(MyApplication.getAppContext(), PicturesActivity.class);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
             }

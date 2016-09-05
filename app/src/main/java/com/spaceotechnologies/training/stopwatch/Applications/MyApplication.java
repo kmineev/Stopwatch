@@ -10,6 +10,7 @@ import com.spaceotechnologies.training.stopwatch.data.DatabaseHelperFactory;
  * Created by Kostez on 01.08.2016.
  */
 public class MyApplication extends Application {
+    public static final String TAG = MyApplication.class.getSimpleName();
 
     private static Context context;
     private static SharedPreferences preferences;

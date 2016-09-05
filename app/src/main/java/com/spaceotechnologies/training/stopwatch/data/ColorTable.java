@@ -8,10 +8,12 @@ import com.j256.ormlite.field.DatabaseField;
 
 public class ColorTable {
 
+    public static final String NAME_FIELD = "color_name";
+
     @DatabaseField(generatedId = true, columnName = "color_id")
     private int colorId;
 
-    @DatabaseField(columnName = "color_name")
+    @DatabaseField(columnName = NAME_FIELD)
     private String colorName;
 
     @DatabaseField(columnName = "color_value")
