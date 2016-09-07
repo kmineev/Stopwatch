@@ -52,9 +52,9 @@ import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapte
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_FRAGMENT_POSITION;
 import static com.spaceotechnologies.training.stopwatch.adapters.TextPagerAdapter.TIMER_NUMBER;
 import static com.spaceotechnologies.training.stopwatch.fragments.ColorsListFragment.COLOR_EXTRA;
-import static com.spaceotechnologies.training.stopwatch.fragments.PictureFragment.PICTURE_EXTRA;
 import static com.spaceotechnologies.training.stopwatch.services.BaseService.BROADCAST_ACTION;
 import static com.spaceotechnologies.training.stopwatch.services.BaseService.CURRENT_PAGE;
+import static com.spaceotechnologies.training.stopwatch.fragments.PictureFragment.PICTURE_EXTRA;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private StopwatchService stopwatchService;
     private BroadcastReceiver broadcastReceiver;
     private CuttoffTimeFragment cuttoffTimeFragment;
+    private String backgroundImageFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,15 +128,21 @@ public class MainActivity extends AppCompatActivity {
         try {
             final Dao<ColorTable, Integer> colorTableDao = DatabaseHelperFactory.getDatabaseHelper().getColorTableDao();
             final QueryBuilder<ColorTable, Integer> queryBuilder = colorTableDao.queryBuilder();
+
+
             queryBuilder.where().eq(ColorTable.NAME_FIELD, BACKGROUND_COLOR);
             final PreparedQuery<ColorTable> preparedQuery = queryBuilder.prepare();
             final Iterator<ColorTable> colorTableIterator = colorTableDao.query(preparedQuery).iterator();
 
             if (colorTableIterator.hasNext()) {
                 while (colorTableIterator.hasNext()) {
-                    final ColorTable cTable = colorTableIterator.next();
-                    if (cTable.getColorName().equals(BACKGROUND_COLOR)) {
-                        color = cTable.getColorValue();
+                    final ColorTable colorTable = colorTableIterator.next();
+                    if (isBackgroundImage = colorTable.isBackgroundImage()) {
+                        backgroundImageFileName = colorTable.getBackgroundImageFileName();
+                    } else {
+                        if (colorTable.getColorName().equals(BACKGROUND_COLOR)) {
+                            color = colorTable.getColorValue();
+                        }
                     }
                 }
             } else {
@@ -144,9 +151,17 @@ public class MainActivity extends AppCompatActivity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+//
         final LinearLayout counterlL = (LinearLayout) findViewById(R.id.counterBackground);
-        counterlL.setBackgroundColor(getColor(color));
+        System.out.println("----- " + counterlL);
+        if (isBackgroundImage) {
+            setImageBackground(backgroundImageFileName);
+        } else {
+            System.out.println("----- " + color);
+
+            counterlL.setBackgroundColor(getColor(color));
+        }
+//        counterlL.setBackgroundColor(getColor(color));
     }
 
     @Override
@@ -292,6 +307,8 @@ public class MainActivity extends AppCompatActivity {
                     final ColorTable cTable = colorTableIterator.next();
                     if (cTable.getColorName().equals(BACKGROUND_COLOR)) {
                         cTable.setColorValue(color);
+                        cTable.setBackgroundImage(isBackgroundImage);
+                        cTable.setBackgroundImageFileName(backgroundImageFileName);
                         colorTableDao.update(cTable);
                     }
                 }
@@ -299,6 +316,8 @@ public class MainActivity extends AppCompatActivity {
                 final ColorTable colorTable = new ColorTable();
                 colorTable.setColorName(BACKGROUND_COLOR);
                 colorTable.setColorValue(color);
+                colorTable.setBackgroundImage(isBackgroundImage);
+                colorTable.setBackgroundImageFileName(backgroundImageFileName);
                 colorTableDao.create(colorTable);
             }
         } catch (SQLException e) {
@@ -368,8 +387,6 @@ public class MainActivity extends AppCompatActivity {
         if (data == null) {
             return;
         }
-
-        String backgroundImageFileName;
 
         if ((backgroundImageFileName = data.getStringExtra(PICTURE_EXTRA)) != null) {
             isBackgroundImage = true;

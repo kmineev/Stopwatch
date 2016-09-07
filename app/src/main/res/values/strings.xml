@@ -28,6 +28,7 @@
     <string name="page">Page</string>
     <string name="title">Title</string>
     <string name="action_background_selection">Backgrounds oboobs</string>
+    <string name="please_connect_to_internet">Please, connect to internet</string>
 
     <string-array name="string_array_settings">
         <item>Background Color</item>

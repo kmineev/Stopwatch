@@ -34,7 +34,6 @@ public class PictureFragment extends Fragment {
     private static final String BACKGROUND_BITMAP = "background_bitmap";
 
     private Toolbar toolbar;
-    private TouchImageView touchImageView;
     private Drawable drawable;
     private Bitmap bitmap;
     private ImageButton imageButtonSetBackground;
@@ -45,8 +44,7 @@ public class PictureFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_picture, container, false);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_picture, container, false);
     }
 
     @Override
@@ -61,7 +59,7 @@ public class PictureFragment extends Fragment {
                 FileOutputStream fos = null;
                 try {
                     f.createNewFile();
-                    bitmap = ((BitmapDrawable)drawable).getBitmap();
+                    bitmap = ((BitmapDrawable) drawable).getBitmap();
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
                     byte[] bitmapdata = bos.toByteArray();
@@ -71,7 +69,8 @@ public class PictureFragment extends Fragment {
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                } try {
+                }
+                try {
                     if (fos != null) {
                         fos.flush();
                         fos.close();
@@ -80,17 +79,16 @@ public class PictureFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                FileOutputStream out = null;
-                bitmap = ((BitmapDrawable)drawable).getBitmap();
+                bitmap = ((BitmapDrawable) drawable).getBitmap();
 
                 Intent intent = new Intent();
-                intent.putExtra(PICTURE_EXTRA, "/data/data/" + getAppContext().getPackageName() + "/cache/" + BACKGROUND_BITMAP);
+                intent.putExtra(PICTURE_EXTRA, getAppContext().getCacheDir() + "/" + BACKGROUND_BITMAP);
                 getActivity().setResult(Activity.RESULT_OK, intent);
                 getActivity().finish();
             }
         });
 
-        touchImageView = (TouchImageView) getActivity().findViewById(R.id.picture_fragment_iv);
+        TouchImageView touchImageView = (TouchImageView) getActivity().findViewById(R.id.picture_fragment_iv);
         touchImageView.setImageDrawable(drawable);
         super.onViewCreated(view, savedInstanceState);
     }
@@ -99,7 +97,6 @@ public class PictureFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-
         toolbar.setVisibility(View.GONE);
         setFullscreen();
     }
@@ -112,7 +109,6 @@ public class PictureFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         toolbar.setVisibility(View.VISIBLE);
-        imageButtonSetBackground.setVisibility(View.GONE);
         exitFullscreen(getActivity());
     }
 
@@ -145,11 +141,5 @@ public class PictureFragment extends Fragment {
 
     public static boolean isImmersiveAvailable() {
         return android.os.Build.VERSION.SDK_INT >= 19;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        imageButtonSetBackground.setVisibility(View.VISIBLE);
     }
 }

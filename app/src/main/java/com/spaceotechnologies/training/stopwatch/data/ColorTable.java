@@ -19,6 +19,12 @@ public class ColorTable {
     @DatabaseField(columnName = "color_value")
     private String colorValue;
 
+    @DatabaseField(columnName = "is_background_image")
+    private boolean isBackgroundImage;
+
+    @DatabaseField(columnName = "background_image_file_name")
+    private String backgroundImageFileName;
+
     public ColorTable() {
 
     }
@@ -46,5 +52,21 @@ public class ColorTable {
 
     public void setColorValue(String colorValue) {
         this.colorValue = colorValue;
+    }
+
+    public boolean isBackgroundImage() {
+        return isBackgroundImage;
+    }
+
+    public void setBackgroundImage(boolean backgroundImage) {
+        isBackgroundImage = backgroundImage;
+    }
+
+    public String getBackgroundImageFileName() {
+        return backgroundImageFileName;
+    }
+
+    public void setBackgroundImageFileName(String backgroundImageFileName) {
+        this.backgroundImageFileName = backgroundImageFileName;
     }
 }
