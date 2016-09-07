@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center" >
+    android:layout_gravity="center"
+    android:orientation="vertical">
 
     <com.spaceotechnologies.training.stopwatch.views.TouchImageView
         android:id="@+id/picture_fragment_iv"
-        android:adjustViewBounds="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:scaleType="fitCenter" />
 
-</LinearLayout>
+    <include layout="@layout/button_set_background" />
+
+</FrameLayout>

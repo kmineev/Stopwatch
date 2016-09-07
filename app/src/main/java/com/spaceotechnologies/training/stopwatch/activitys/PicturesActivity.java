@@ -5,7 +5,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.ImageButton;
 
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.fragments.BackgroundsFragment;
@@ -14,8 +13,6 @@ import com.spaceotechnologies.training.stopwatch.fragments.BackgroundsFragment;
  * Created by Kostez on 30.08.2016.
  */
 public class PicturesActivity extends AppCompatActivity {
-
-    private ImageButton imageButtonSetBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

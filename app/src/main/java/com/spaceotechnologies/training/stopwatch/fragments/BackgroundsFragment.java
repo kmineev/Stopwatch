@@ -1,7 +1,10 @@
 package com.spaceotechnologies.training.stopwatch.fragments;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,17 +13,18 @@ import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.spaceotechnologies.training.stopwatch.volley.OnLoadMoreListener;
 import com.spaceotechnologies.training.stopwatch.R;
 import com.spaceotechnologies.training.stopwatch.adapters.BackgroundsRecyclerViewAdapter;
 import com.spaceotechnologies.training.stopwatch.volley.Config;
 import com.spaceotechnologies.training.stopwatch.volley.Model;
+import com.spaceotechnologies.training.stopwatch.volley.OnLoadMoreListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,16 +40,17 @@ import static com.spaceotechnologies.training.stopwatch.applications.MyApplicati
  */
 public class BackgroundsFragment extends Fragment {
 
-    private static final int NUMBER = 20;
+    private static final int LIMIT = 20;
     protected Handler handler;
     private RecyclerView recyclerView;
     private BackgroundsRecyclerViewAdapter adapter;
-    private List<Model> models;
+    private List<Model> models = new ArrayList<>();
     private GridLayoutManager gridLayoutManager;
     private OnLoadMoreListener onLoadMoreListener;
     private boolean isLoading = false;
-    private int from = -NUMBER;
+    private int offset = -LIMIT;
     private int page = 0;
+    private int fistVisibleItem;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -64,11 +69,15 @@ public class BackgroundsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    private void initViews() {
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setupGridLayoutManager();
+        gridLayoutManager.scrollToPosition(fistVisibleItem);
 
-        recyclerView = (RecyclerView) getView().findViewById(R.id.backgrounds_recycler_view);
-        handler = new Handler();
+    }
 
+    private void setupGridLayoutManager() {
         if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             gridLayoutManager = new GridLayoutManager(getAppContext(), 2);
         } else {
@@ -76,7 +85,15 @@ public class BackgroundsFragment extends Fragment {
         }
 
         recyclerView.setLayoutManager(gridLayoutManager);
-        models = new ArrayList<>();
+    }
+
+    private void initViews() {
+
+        recyclerView = (RecyclerView) getView().findViewById(R.id.backgrounds_recycler_view);
+        handler = new Handler();
+
+        setupGridLayoutManager();
+
         adapter = new BackgroundsRecyclerViewAdapter(getActivity(), models);
         recyclerView.setAdapter(adapter);
 
@@ -99,7 +116,9 @@ public class BackgroundsFragment extends Fragment {
             }
         };
 
-        onLoadMoreListener.onLoadMore();
+        if (models.isEmpty()) {
+            onLoadMoreListener.onLoadMore();
+        }
 
         recyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
@@ -107,6 +126,7 @@ public class BackgroundsFragment extends Fragment {
                 super.onScrolled(recyclerView, dx, dy);
                 int totalItemCount = gridLayoutManager.getItemCount();
                 int lastVisibleItem = gridLayoutManager.findLastVisibleItemPosition();
+                fistVisibleItem = gridLayoutManager.findFirstVisibleItemPosition();
 
                 if (!isLoading && (lastVisibleItem + 1) >= totalItemCount) {
 
@@ -120,33 +140,50 @@ public class BackgroundsFragment extends Fragment {
     }
 
     private String getAutomaticRequest() {
-        from = page++ * NUMBER;
-        return getRequest(from, NUMBER);
-    }
-
-    private String getRequest(int from, int number) {
-        return "/boobs/" + from + '/' + number + "/date/";
+        offset = page++ * LIMIT;
+        return Config.getRequest(offset, LIMIT);
     }
 
     private void getData(String startData) {
 
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Config.DATA_URL + startData,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
+        if (hasConnection(getAppContext())) {
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Config.DATA_URL + startData,
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
 //                        loading.dismiss();
-                        parseData(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+                            parseData(response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
 
-                    }
-                });
+                        }
+                    });
 
-        RequestQueue requestQueue = Volley.newRequestQueue(getAppContext());
-        requestQueue.add(jsonArrayRequest);
+            RequestQueue requestQueue = Volley.newRequestQueue(getAppContext());
+            requestQueue.add(jsonArrayRequest);
+        } else {
+            Toast.makeText(getAppContext(), getAppContext().getString(R.string.please_connect_to_internet), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean hasConnection(final Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifiInfo = cm.getActiveNetworkInfo();
+        if (wifiInfo != null && wifiInfo.getType() == ConnectivityManager.TYPE_WIFI && wifiInfo.isConnected()) {
+            return true;
+        }
+        wifiInfo = cm.getActiveNetworkInfo();
+        if (wifiInfo != null && wifiInfo.getType() == ConnectivityManager.TYPE_MOBILE && wifiInfo.isConnected()) {
+            return true;
+        }
+        wifiInfo = cm.getActiveNetworkInfo();
+        if (wifiInfo != null && wifiInfo.isConnected()) {
+            return true;
+        }
+        return false;
     }
 
     private void parseData(JSONArray array) {

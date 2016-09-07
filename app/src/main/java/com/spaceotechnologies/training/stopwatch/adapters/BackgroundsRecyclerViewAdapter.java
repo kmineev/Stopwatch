@@ -31,7 +31,10 @@ public class BackgroundsRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
     private List<Model> models;
 
     public static final int VIEW_ITEM = 1;
+    public static final int BACKGROUNDS_FRAGMENT_POSITION = 0;
+    public static final int PICTURE_FRAGMENT_POSITION = 1;
     public static final int VIEW_PROG = 0;
+    public static final String PICTURES_ACTIVITY_TAG = "pictures_activity_tag";
 
     public BackgroundsRecyclerViewAdapter(Activity activity, List<Model> models) {
         this.activity = activity;
@@ -97,7 +100,7 @@ public class BackgroundsRecyclerViewAdapter extends RecyclerView.Adapter<Recycle
                     FragmentTransaction fragmentTransaction = activity.getFragmentManager().beginTransaction();
                     fragmentTransaction.addToBackStack(null);
                     PictureFragment pictureFragment = new PictureFragment(img_android.getDrawable());
-                    fragmentTransaction.replace(R.id.backgrounds_content, pictureFragment);
+                    fragmentTransaction.replace(R.id.backgrounds_content, pictureFragment, PICTURES_ACTIVITY_TAG + ':' + PICTURE_FRAGMENT_POSITION);
                     fragmentTransaction.commit();
                 }
             });
